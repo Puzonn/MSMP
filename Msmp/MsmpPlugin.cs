@@ -8,6 +8,7 @@ using System.Threading;
 using Msmp.Client.Controllers;
 using HarmonyLib;
 using Msmp.Patch;
+using MSMP.Patch;
 
 namespace Msmp
 {
@@ -49,6 +50,7 @@ namespace Msmp
         private void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(PurchasePatch));
+            Harmony.CreateAndPatchAll(typeof(DeliveryPatch));
         }
 
         private void Update()

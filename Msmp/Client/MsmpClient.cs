@@ -10,7 +10,8 @@ using MyBox;
 using Msmp.Client.Controllers;
 using UnityEngine.AI;
 using Msmp.Server.Packets;
-using System.Collections.Generic;
+using static MarketShoppingCart;
+using MSMP.Mono;
 
 namespace Msmp.Client
 {
@@ -21,15 +22,11 @@ namespace Msmp.Client
         {
             get
             {
-                Console.WriteLine($"Is null {_instance == null}");
-
                 return _instance;
             }
             set
             {
                 _instance = value;
-
-                Console.WriteLine($"Is value null {value == null}");
             }
         }
 
@@ -88,7 +85,7 @@ namespace Msmp.Client
                                 {
                                     UnityDispatcher.UnitySyncContext.Post(_p =>
                                     {
-                                        InUserConnected conn = Packet.Deserialize<InUserConnected>(buffer.Take(bytesRead).ToArray());
+                                        UserConnected conn = Packet.Deserialize<UserConnected>(buffer.Take(bytesRead).ToArray());
 
                                         _clientManager.SetLocalClient(conn.UserId);
 
@@ -176,17 +173,27 @@ namespace Msmp.Client
                                 break;
                             case PacketType.PurchaseEvent:
                                 {
-                                    _logger.LogInfo("event!");
-                                    MarketShoppingCartPurchase items = Packet.Deserialize<MarketShoppingCartPurchase>(buffer);
+                                    OutMarketShoppingCartPurchase items = Packet.Deserialize<OutMarketShoppingCartPurchase>(buffer);
 
-                                    MarketShoppingCart.CartData cardData = new MarketShoppingCart.CartData
+                                    foreach(var product in items.Products)
                                     {
-                                        FurnituresInCarts = items.FurnituresIds.Select(id => new ItemQuantity(id, 0f)).ToList(),
-                                        ProductInCarts = items.ProductIds.Select(id => new ItemQuantity(id, 0f)).ToList(),
-                                    };
+                                        Box box = Singleton<BoxGenerator>.Instance.SpawnBox(Singleton<IDManager>.Instance.ProductSO(product.ItemId),
+                                            new Vector3(4, 1, 4), Quaternion.identity);
 
-                                    _logger.LogInfo("Delivering");
-                                    Singleton<DeliveryManager>.Instance.Delivery(cardData);
+                                        box.Setup(product.ItemId, true);
+
+                                        box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = product.NetworkItemId;
+                                    }
+
+                                    foreach(var furniture in items.Furnitures)
+                                    {
+                                        Box box = Singleton<BoxGenerator>.Instance.SpawnBox(Singleton<IDManager>.Instance.ProductSO(furniture.ItemId),
+                                           new Vector3(4, 1, 4), Quaternion.identity);
+
+                                        box.Setup(furniture.ItemId, true);
+
+                                        box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = furniture.NetworkItemId;
+                                    }
                                 }
                                 break;
                         }

@@ -10,7 +10,7 @@ namespace Msmp.Server
         CreateFakeClient = 0x2f,
         PlayerMovement = 0x3f,
         MoneyChanged = 0x4f,
-        PlayerRotate = 0x5,
-        PurchaseEvent = 0x6
+        PlayerRotate = 0x5F,
+        PurchaseEvent = 0x6f
     }
 }

@@ -54,7 +54,7 @@ namespace Msmp.Server
 
                 foreach (var _client in manager.Clients) 
                 {
-                    InUserConnected connected = new InUserConnected()
+                    UserConnected connected = new UserConnected()
                     {
                         ConnectedClients = manager.Clients.Values.ToList(),
                         UserId = _client.Value.ClientId,

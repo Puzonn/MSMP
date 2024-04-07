@@ -4,6 +4,10 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using Msmp.Server.Models;
 using BepInEx.Logging;
+using MSMP.Server.Packets;
+using Msmp.Server.Packets;
+using System.Linq;
+using MSMP.Server.Models;
 
 namespace Msmp.Server
 {
@@ -21,7 +25,7 @@ namespace Msmp.Server
 
         public void AddClient(Guid networkId, NetworkStream stream)
         {
-            _logger.LogInfo($"[{nameof(PayloadManager)}]Added client");
+            _logger.LogInfo($"[{nameof(PayloadManager)}] Added client");
 
             /* TODO: Check if client exist */
             Clients.Add(stream, new ClientModel()
@@ -43,7 +47,7 @@ namespace Msmp.Server
                 {
                     PacketType type = (PacketType)data[0];
 
-                    switch (type) 
+                    switch (type)
                     {
                         case PacketType.PlayerMovement:
                             {
@@ -103,10 +107,30 @@ namespace Msmp.Server
                             break;
                         case PacketType.PurchaseEvent:
                             {
-                                Packet packet = new Packet(data);
-                                SendPayload(stream, packet);
+                                InMarketShoppingCartPurchase inMarketShoppingCartPurchase = Packet.Deserialize<InMarketShoppingCartPurchase>(data);
+                                OutMarketShoppingCartPurchase outMarketShoppingCartPurchase = new OutMarketShoppingCartPurchase()
+                                {
+                                    Furnitures = inMarketShoppingCartPurchase.FurnituresIds.Select(x =>
+                                        new MarketShoppingCartPurcheItem()
+                                        {
+                                            ItemId = x,
+                                            NetworkItemId = Guid.NewGuid(),
+                                        }
+                                    ).ToArray(),
+                                    Products = inMarketShoppingCartPurchase.ProductsIds.Select(x =>
+                                        new MarketShoppingCartPurcheItem()
+                                        {
+                                            ItemId = x,
+                                            NetworkItemId = Guid.NewGuid(),
+                                        }
+                                    ).ToArray(),
+                                };
+
+                                Packet packet = new Packet(PacketType.PurchaseEvent, outMarketShoppingCartPurchase);
+                                SendPayload(packet);
                             }
                             break;
+                    
                     }
                 }
             }
@@ -131,15 +155,7 @@ namespace Msmp.Server
 
                 Array.Copy(payload._data, 0, buffer, 1, payload._data.Length);
 
-                foreach(var client in Clients.Keys)
-                {
-                    if(client == exclude) 
-                    {
-                        continue;
-                    }
-
-                    client.Write(buffer, 0, buffer.Length);
-                }
+                exclude.Write(buffer, 0, buffer.Length);
             }
         }
 

@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="MonoBehaviours\" />
-    <Folder Include="Reflection\" />
+    <Compile Remove="MonoBehaviours\**" />
+    <Compile Remove="Reflection\**" />
+    <EmbeddedResource Remove="MonoBehaviours\**" />
+    <EmbeddedResource Remove="Reflection\**" />
+    <None Remove="MonoBehaviours\**" />
+    <None Remove="Reflection\**" />
   </ItemGroup>
 
   <ItemGroup>

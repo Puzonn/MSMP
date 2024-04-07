@@ -1,11 +1,9 @@
 ﻿using Msmp.Client;
 using Msmp.Server;
-using Msmp.Server.Packets;
 using HarmonyLib;
-using System.Collections.Generic;
 using System.Reflection;
-using System;
 using System.Linq;
+using MSMP.Server.Packets;
 
 namespace Msmp.Patch
 {
@@ -24,10 +22,10 @@ namespace Msmp.Patch
 
             MsmpClient client = MsmpClient.Instance;
 
-            MarketShoppingCartPurchase marketShoppingCartPurchase = new MarketShoppingCartPurchase()
+            InMarketShoppingCartPurchase marketShoppingCartPurchase = new InMarketShoppingCartPurchase()
             {
                 FurnituresIds = furnituresIds,
-                ProductIds = productsIds,
+                ProductsIds = productsIds,
             };
 
             Packet packet = new Packet(PacketType.PurchaseEvent, marketShoppingCartPurchase);
