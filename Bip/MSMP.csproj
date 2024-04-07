@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="MonoBehaviours\" />
+    <Folder Include="Reflection\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\BepInEx\core\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="MyBox">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\MyBox.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="mkdir &quot;C:\Users\Puzonne\Desktop\Supermarket.Simulator.v0.1.2.4a\BepInEx\plugins\$(TargetName)&quot;&#xD;&#xA;xcopy /q/y/i &quot;$(TargetPath)&quot; &quot;C:\Users\Puzonne\Desktop\Supermarket.Simulator.v0.1.2.4a\BepInEx\plugins\$(TargetName)&quot; /E /H /C&#xD;&#xA;&#xD;&#xA;&quot;C:\Users\Puzonne\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator.exe&quot;" />
+  </Target>
+
+</Project>
