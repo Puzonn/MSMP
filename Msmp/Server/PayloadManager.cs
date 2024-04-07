@@ -79,7 +79,7 @@ namespace Msmp.Server
                                 Buffer.BlockCopy(clientId, 0, clientMovementOut, 0, clientId.Length);
                                 Buffer.BlockCopy(positionData, 0, clientMovementOut, clientId.Length, positionData.Length);
 
-                                SendPayload(new Packet(PacketType.PlayerMovement, clientMovementOut));
+                                SendPayloadExclude(stream, new Packet(PacketType.PlayerMovement, clientMovementOut));
                             }
                             break;
                         case PacketType.MoneyChanged:
@@ -97,7 +97,7 @@ namespace Msmp.Server
                                 Buffer.BlockCopy(clientId, 0, rotationDataOut, 0, clientId.Length);
                                 Buffer.BlockCopy(rotationData, 0, rotationDataOut, clientId.Length, rotationData.Length);
 
-                                SendPayload(new Packet(PacketType.PlayerRotate, rotationDataOut));
+                                SendPayloadExclude(stream, new Packet(PacketType.PlayerRotate, rotationDataOut));
                             }
                             break;
                         case PacketType.PurchaseEvent:
@@ -125,7 +125,12 @@ namespace Msmp.Server
                                 SendPayload(new Packet(PacketType.PurchaseEvent, outMarketShoppingCartPurchase));
                             }
                             break;
-                        case PacketType.PickupEvent:
+                        case PacketType.BoxPickupEvent:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.BoxDropEvent:
                             {
                                 SendPayload(new Packet(data));
                             }
@@ -135,7 +140,7 @@ namespace Msmp.Server
             }
         }
 
-        public void SendPayload(NetworkStream exclude, Packet payload)
+        public void SendPayloadExclude(NetworkStream exclude, Packet payload)
         {
             if (payload is null)
             {
@@ -154,7 +159,38 @@ namespace Msmp.Server
 
                 Array.Copy(payload._data, 0, buffer, 1, payload._data.Length);
 
-                exclude.Write(buffer, 0, buffer.Length);
+                foreach (var client in Clients.Keys)
+                {
+                    if(client == exclude)
+                    {
+                        continue;
+                    }
+
+                    client.Write(buffer, 0, buffer.Length);
+                }
+            }
+        }
+
+        public void SendPayloadByStream(NetworkStream client, Packet payload)
+        {
+            if (payload is null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
+            if (payload.GetType() != typeof(Packet))
+            {
+                throw new NotImplementedException("Payload have to be packet type");
+            }
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                byte[] buffer = new byte[1 + payload._data.Length];
+                buffer[0] = payload._type;
+
+                Array.Copy(payload._data, 0, buffer, 1, payload._data.Length);
+
+                client.Write(buffer, 0, buffer.Length);
             }
         }
 

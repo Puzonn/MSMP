@@ -21,14 +21,13 @@ namespace MSMP.Mono
 
         public void Update()
         {
-            if (!PickedUp || _Owner == null)
+            /* Play normal pickup animation for local client */
+            if (!PickedUp || _Owner == null || OwnerNetworkId == _client.LocalClientNetworkId)
             {
                 return;
             }
 
             Vector3 ownerPosition = _Owner.transform.position;
-
-            Console.WriteLine($"Box transform to {ownerPosition}");
 
             transform.position = new Vector3(ownerPosition.x, ownerPosition.y + 0.65f, ownerPosition.z);
         }
@@ -49,14 +48,14 @@ namespace MSMP.Mono
 
             _Owner = networkedPlayer.gameObject;
 
-            GetComponent<Rigidbody>().isKinematic = false;
+            PickedUp = true;
         }
 
         /// <summary>
         /// Checks if can be picked up and picks up boxes
         /// </summary>
         /// <param name="value"></param>
-        public void SetPickedUp(bool value)
+        public void SetPickedUp(bool value, bool inform)
         {
             PickedUp = value;
             /* TODO: @see Patch.PickupPatch */
@@ -67,15 +66,27 @@ namespace MSMP.Mono
                 BoxOwner = _client.LocalClientNetworkId,
             };
 
-            Packet packet = new Packet(PacketType.PickupEvent, boxPickedupPacket);
+            if (inform)
+            {
+                Packet packet = new Packet(PacketType.BoxPickupEvent, boxPickedupPacket);
 
-            _client.SendPayload(packet);
+                _client.SendPayload(packet);
+            }
 
             if(!value)
             {
                 _Owner = null;
                 OwnerNetworkId = default;
             }
+        }
+
+        public void BoxDropped(Vector3 dropPosition)
+        {
+            transform.position = dropPosition;
+            Console.WriteLine($"Drop: {dropPosition}");
+            _Owner = null;
+            OwnerNetworkId = default;
+            PickedUp = false;
         }
     }
 }

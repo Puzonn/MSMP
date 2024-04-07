@@ -9,13 +9,13 @@ namespace Msmp.Patch
 {
     [HarmonyPatch(typeof(PlayerObjectHolder))]
     [HarmonyPatch("HoldObject")]
-    internal class PickupPatch
+    internal class BoxPickupPatch
     {
         [HarmonyPostfix]
         static void Postfix(GameObject item)
         {
             item.GetComponent<NetworkedBox>()
-                .SetPickedUp(true);
+                .SetPickedUp(true, true);
         }
     }
 }

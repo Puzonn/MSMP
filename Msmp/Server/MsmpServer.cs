@@ -50,7 +50,7 @@ namespace Msmp.Server
                 /* TODO:
                     Sync player prefabs for all connected 
                     Each time client will connect all, all prefabs will be randomized 
-                 */
+                */
 
                 foreach (var _client in manager.Clients) 
                 {
@@ -62,7 +62,7 @@ namespace Msmp.Server
 
                     Packet packet = new Packet(PacketType.OnConnection, connected);
 
-                    manager.SendPayload(_client.Key, packet);
+                    manager.SendPayloadByStream(_client.Key, packet);
                 }
 
                 /* Each client have their own thread to listen all payloads */

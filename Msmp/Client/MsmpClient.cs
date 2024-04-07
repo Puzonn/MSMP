@@ -85,56 +85,64 @@ namespace Msmp.Client
                         {
                             case PacketType.OnConnection:
                                 {
-                                    UnityDispatcher.UnitySyncContext.Post(_p =>
+                                    UserConnected conn = Packet.Deserialize<UserConnected>(buffer.Take(bytesRead).ToArray());
+
+                                    LocalClientNetworkId = conn.NetworkId;
+
+                                    /* Clear buffer. @see Msmp.Server.PayloadManager */
+                                    foreach (var client in _clientManager.Clients.ToList() /* Prevent { Collection was modified }*/)
                                     {
-                                        UserConnected conn = Packet.Deserialize<UserConnected>(buffer.Take(bytesRead).ToArray());
+                                        GameObject gm = _clientManager.Clients[client.Key];
+                                        /* Check if needed. @see Msmp.Server.PayloadManager */
+                                        UnityEngine.Object.Destroy(gm);
 
-                                        LocalClientNetworkId = conn.NetworkId;
+                                        _clientManager.Clients[client.Key] = null;
+                                    }
 
-                                        /* Clear buffer. @see Msmp.Server.PayloadManager */
-                                        foreach (var client in _clientManager.Clients.ToList() /* Prevent { Collection was modified }*/)
+                                    foreach (var client in conn.ConnectedClients)
+                                    {
+                                        if (client.ClientId == LocalClientNetworkId)
                                         {
-                                            GameObject gm = _clientManager.Clients[client.Key];
-                                            /* Check if needed. @see Msmp.Server.PayloadManager */
-                                            UnityEngine.Object.Destroy(gm);
-
-                                            _clientManager.Clients[client.Key] = null;
-                                        }
-                                        foreach (var client in conn.ConnectedClients)
-                                        {
-                                            CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;
-                                            Customer customer = customerGenerator.Spawn();
-                                            GameObject ad = GameObject.Instantiate(customer.gameObject);
-
-                                            ad.AddComponent<NetworkedPlayer>()
+                                            Singleton<PlayerController>.Instance.GetOrAddComponent<NetworkedPlayer>()
                                             .NetworkId = client.ClientId;
 
-                                            customerGenerator.DeSpawn(customer);
-
-                                            foreach (var comp in ad.GetComponents<Component>())
-                                            {
-                                                if (comp.GetType().Name == "Customer")
-                                                {
-                                                    UnityEngine.Object.Destroy(comp);
-                                                    continue;
-                                                }
-
-                                                ad.tag = "_";
-                                                ad.name = "_";
-                                            }
-
-                                            ad.GetComponent<NavMeshAgent>().isStopped = true;
-                                            ad.GetComponent<NavMeshAgent>().enabled = false;
-
-                                            ad.transform.position = new Vector3(client.x, client.y, client.z);
-                                            _clientManager.AddOrUpdateClient(client.ClientId, ad);
-
-                                            _logger.LogInfo($"Added {client.ClientId} as unity GameObject");
+                                            continue;
                                         }
 
-                                        _logger.LogInfo($"[Client] {nameof(PacketType.OnConnection)} You're connected as {conn.NetworkId}");
-                                    }, null);
+                                        CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;
+                                        Customer customer = customerGenerator.Spawn();
+                                        GameObject ad = GameObject.Instantiate(customer.gameObject);
 
+                                        ad.AddComponent<NetworkedPlayer>()
+                                        .NetworkId = client.ClientId;
+
+                                        customerGenerator.DeSpawn(customer);
+
+                                        foreach (var comp in ad.GetComponents<Component>())
+                                        {
+                                            if (comp.GetType().Name == "Customer" || comp.GetType().Name == "Renderer")
+                                            {
+                                                UnityEngine.Object.Destroy(comp);
+                                                continue;
+                                            }
+
+                                            _logger.LogInfo(comp.GetType().Name);
+                                        }
+
+                                        ad.GetComponent<Collider>().enabled = true;
+
+                                        ad.name = "_";
+
+                                        ad.GetComponent<NavMeshAgent>().isStopped = true;
+                                        ad.GetComponent<NavMeshAgent>().enabled = false;
+
+                                        ad.transform.position = new Vector3(client.x, client.y, client.z);
+                                        _clientManager.AddOrUpdateClient(client.ClientId, ad);
+
+                                        _logger.LogInfo($"Added {client.ClientId} as unity GameObject");
+                                    }
+
+                                    _logger.LogInfo($"[Client] {nameof(PacketType.OnConnection)} You're connected as {conn.NetworkId}");
                                 }
                                 break;
                             case PacketType.PlayerMovement:
@@ -202,17 +210,23 @@ namespace Msmp.Client
                                     }
                                 }
                                 break;
-                            case PacketType.PickupEvent:
+                            case PacketType.BoxPickupEvent:
                                 {
                                     /* TODO: Cache all boxes */
-                                    _logger.LogInfo("Picking up");
                                     BoxPickedupPacket boxPickedupPacket = Packet.Deserialize<BoxPickedupPacket>(buffer);
 
                                     Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedBox>(),
                                         x => x.BoxNetworkId == boxPickedupPacket.BoxNetworkId)
                                     .SetPickedUp(boxPickedupPacket.BoxOwner);
+                                }
+                                break;
+                            case PacketType.BoxDropEvent:
+                                {
+                                    OutBoxDropPacket boxDropPacket = Packet.Deserialize<OutBoxDropPacket>(buffer);
 
-                                    _logger.LogInfo("Picked");
+                                    Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedBox>(),
+                                        x => x.BoxNetworkId == boxDropPacket.BoxNetworkId)
+                                    .BoxDropped(new Vector3(boxDropPacket.x, boxDropPacket.y, boxDropPacket.z));
                                 }
                                 break;
                         }

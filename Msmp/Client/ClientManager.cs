@@ -24,6 +24,7 @@ namespace Msmp.Client
         public void CreateFakeClient(Guid guid, Vector3 position)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
             cube.transform.position = position;
             cube.transform.localScale = new Vector3(1f, 1f, 1f);
             Clients.Add(guid, cube);

@@ -26,13 +26,6 @@ namespace Msmp.Patch
             int[] productsIds = m_CartData.ProductInCarts.Select(x => x.FirstItemID).ToArray();
             int[] furnituresIds = m_CartData.FurnituresInCarts.Select(x => x.FirstItemID).ToArray();
 
-            MsmpClient client = MsmpClient.Instance;
-
-            if(client == null)
-            {
-                throw new Exception($"Client was null at {nameof(PurchasePatch)}");
-            }
-
             InMarketShoppingCartPurchasePacket marketShoppingCartPurchase = new InMarketShoppingCartPurchasePacket()
             {
                 FurnituresIds = furnituresIds,
@@ -41,7 +34,7 @@ namespace Msmp.Patch
 
             Packet packet = new Packet(PacketType.PurchaseEvent, marketShoppingCartPurchase);
 
-            client.SendPayload(packet);
+            MsmpClient.Instance.SendPayload(packet);
         }
     }
 }

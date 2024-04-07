@@ -12,6 +12,7 @@ namespace Msmp.Server
         MoneyChanged = 0x4f,
         PlayerRotate = 0x5F,
         PurchaseEvent = 0x6f,
-        PickupEvent = 0x7f
+        BoxPickupEvent = 0x7f,
+        BoxDropEvent = 0x8f,
     }
 }
