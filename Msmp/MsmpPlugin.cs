@@ -70,7 +70,6 @@ namespace Msmp
                 MsmpClient.Instance = client;
             }
 
-
             if (UnityInput.Current.GetKey(KeyCode.F3))
             {
                 CheckoutInteraction i = UnityEngine.Object.FindObjectsOfType<CheckoutInteraction>()[0];
@@ -86,23 +85,6 @@ namespace Msmp
                 };
             }
 
-            if (UnityInput.Current.GetKey(KeyCode.F2))
-            {
-                BoxData da = new BoxData()
-                {
-                    IsOpen = false,
-                    ProductID = 4,
-                    Size = BoxSize._15x15x15,
-                    ProductCount = 4,
-                };
-
-                da.Transform.Position = new Vector3(4, 1, 4);
-                for(int i = 0; i < 5; i++)
-                {
-                    Singleton<BoxGenerator>.Instance.SpawnBox(da.Transform.Position, da.Transform.Rotation, da);
-                }
-            }
-
             if (UnityInput.Current.GetKeyDown(KeyCode.F1))
             {
                 Singleton<MoneyManager>.Instance.MoneyTransition(500, MoneyManager.TransitionType.BILLS);
@@ -111,6 +93,7 @@ namespace Msmp
             if (UnityInput.Current.GetKeyDown(KeyCode.F5) && !client.Connected)
             {
                 client.BuildClient(false);
+                MsmpClient.Instance = client;
             }
         }
 

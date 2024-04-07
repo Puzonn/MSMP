@@ -28,6 +28,8 @@ namespace MSMP.Mono
 
             Vector3 ownerPosition = _Owner.transform.position;
 
+            Console.WriteLine($"Box transform to {ownerPosition}");
+
             transform.position = new Vector3(ownerPosition.x, ownerPosition.y + 0.65f, ownerPosition.z);
         }
 
@@ -38,9 +40,16 @@ namespace MSMP.Mono
         {
             OwnerNetworkId = owner;
 
-            _Owner = Array.Find(FindObjectsOfType<NetworkedPlayer>(), x => x.NetworkId == owner).gameObject;
+            NetworkedPlayer networkedPlayer = Array.Find(FindObjectsOfType<NetworkedPlayer>(), x => x.NetworkId == owner);
 
-            GetComponent<Rigidbody>().isKinematic = true;
+            if(networkedPlayer == null)
+            {
+                throw new Exception($"Player dose not exist as {nameof(NetworkedPlayer)}");
+            }
+
+            _Owner = networkedPlayer.gameObject;
+
+            GetComponent<Rigidbody>().isKinematic = false;
         }
 
         /// <summary>
