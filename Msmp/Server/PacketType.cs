@@ -11,6 +11,7 @@ namespace Msmp.Server
         PlayerMovement = 0x3f,
         MoneyChanged = 0x4f,
         PlayerRotate = 0x5F,
-        PurchaseEvent = 0x6f
+        PurchaseEvent = 0x6f,
+        PickupEvent = 0x7f
     }
 }

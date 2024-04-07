@@ -8,6 +8,6 @@ namespace Msmp.Server.Packets
     internal class UserConnected
     {
         public List<ClientModel> ConnectedClients { get; set; }
-        public Guid UserId { get; set; }
+        public Guid NetworkId { get; set; }
     }
 }

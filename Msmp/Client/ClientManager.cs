@@ -8,7 +8,6 @@ namespace Msmp.Client
     {
         /* GameObject is reference to PlayerController */
         public Dictionary<Guid, GameObject> Clients = new Dictionary<Guid, GameObject>();
-        public Guid LocalGuid { get; set; } 
 
         public void AddOrUpdateClient(Guid guid, GameObject gameObject)
         {
@@ -20,11 +19,6 @@ namespace Msmp.Client
             {
                 Clients.Add(guid, gameObject);
             }
-        }
-
-        public void SetLocalClient(Guid guid)
-        {
-            LocalGuid = guid;   
         }
 
         public void CreateFakeClient(Guid guid, Vector3 position)

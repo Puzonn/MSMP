@@ -10,8 +10,8 @@ using MyBox;
 using Msmp.Client.Controllers;
 using UnityEngine.AI;
 using Msmp.Server.Packets;
-using static MarketShoppingCart;
 using MSMP.Mono;
+using Msmp.Mono;
 
 namespace Msmp.Client
 {
@@ -34,6 +34,8 @@ namespace Msmp.Client
         
         private readonly TcpClient _client;
         private readonly ClientManager _clientManager;
+
+        public Guid LocalClientNetworkId { get; private set; }
 
         public bool IsServer { get; private set; }
 
@@ -87,7 +89,7 @@ namespace Msmp.Client
                                     {
                                         UserConnected conn = Packet.Deserialize<UserConnected>(buffer.Take(bytesRead).ToArray());
 
-                                        _clientManager.SetLocalClient(conn.UserId);
+                                        LocalClientNetworkId = conn.NetworkId;
 
                                         /* Clear buffer. @see Msmp.Server.PayloadManager */
                                         foreach (var client in _clientManager.Clients.ToList() /* Prevent { Collection was modified }*/)
@@ -103,11 +105,15 @@ namespace Msmp.Client
                                             CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;
                                             Customer customer = customerGenerator.Spawn();
                                             GameObject ad = GameObject.Instantiate(customer.gameObject);
+
+                                            ad.AddComponent<NetworkedPlayer>()
+                                            .NetworkId = client.ClientId;
+
                                             customerGenerator.DeSpawn(customer);
 
                                             foreach (var comp in ad.GetComponents<Component>())
                                             {
-                                                if (comp.GetType().Name == "Customer" || comp.GetType().Name == "CapsuleCollider")
+                                                if (comp.GetType().Name == "Customer")
                                                 {
                                                     UnityEngine.Object.Destroy(comp);
                                                     continue;
@@ -126,7 +132,7 @@ namespace Msmp.Client
                                             _logger.LogInfo($"Added {client.ClientId} as unity GameObject");
                                         }
 
-                                        _logger.LogInfo($"[Client] {nameof(PacketType.OnConnection)} You're connected as {conn.UserId}");
+                                        _logger.LogInfo($"[Client] {nameof(PacketType.OnConnection)} You're connected as {conn.NetworkId}");
                                     }, null);
 
                                 }
@@ -173,7 +179,7 @@ namespace Msmp.Client
                                 break;
                             case PacketType.PurchaseEvent:
                                 {
-                                    OutMarketShoppingCartPurchase items = Packet.Deserialize<OutMarketShoppingCartPurchase>(buffer);
+                                    OutMarketShoppingCartPurchasePacket items = Packet.Deserialize<OutMarketShoppingCartPurchasePacket>(buffer);
 
                                     foreach(var product in items.Products)
                                     {
@@ -194,6 +200,19 @@ namespace Msmp.Client
 
                                         box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = furniture.NetworkItemId;
                                     }
+                                }
+                                break;
+                            case PacketType.PickupEvent:
+                                {
+                                    /* TODO: Cache all boxes */
+                                    _logger.LogInfo("Picking up");
+                                    BoxPickedupPacket boxPickedupPacket = Packet.Deserialize<BoxPickedupPacket>(buffer);
+
+                                    Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedBox>(),
+                                        x => x.BoxNetworkId == boxPickedupPacket.BoxNetworkId)
+                                    .SetPickedUp(boxPickedupPacket.BoxOwner);
+
+                                    _logger.LogInfo("Picked");
                                 }
                                 break;
                         }

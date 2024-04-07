@@ -3,7 +3,7 @@
 namespace MSMP.Server.Packets
 {
     [Serializable]
-    internal class InMarketShoppingCartPurchase
+    internal class InMarketShoppingCartPurchasePacket
     {
         public int[] ProductsIds { get; set; }
         public int[] FurnituresIds { get; set; } 

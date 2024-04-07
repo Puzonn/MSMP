@@ -51,6 +51,7 @@ namespace Msmp
         {
             Harmony.CreateAndPatchAll(typeof(PurchasePatch));
             Harmony.CreateAndPatchAll(typeof(DeliveryPatch));
+            Harmony.CreateAndPatchAll(typeof(PickupPatch));
         }
 
         private void Update()

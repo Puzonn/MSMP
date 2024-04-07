@@ -4,7 +4,7 @@ using System;
 namespace Msmp.Server.Packets
 {
     [Serializable]
-    internal class OutMarketShoppingCartPurchase
+    internal class OutMarketShoppingCartPurchasePacket
     {
         public MarketShoppingCartPurcheItem[] Products { get; set; }
         public MarketShoppingCartPurcheItem[] Furnitures { get; set; }    

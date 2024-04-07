@@ -57,7 +57,7 @@ namespace Msmp.Server
                     UserConnected connected = new UserConnected()
                     {
                         ConnectedClients = manager.Clients.Values.ToList(),
-                        UserId = _client.Value.ClientId,
+                        NetworkId = _client.Value.ClientId,
                     };
 
                     Packet packet = new Packet(PacketType.OnConnection, connected);

@@ -22,7 +22,7 @@ namespace Msmp.Patch
 
             MsmpClient client = MsmpClient.Instance;
 
-            InMarketShoppingCartPurchase marketShoppingCartPurchase = new InMarketShoppingCartPurchase()
+            InMarketShoppingCartPurchasePacket marketShoppingCartPurchase = new InMarketShoppingCartPurchasePacket()
             {
                 FurnituresIds = furnituresIds,
                 ProductsIds = productsIds,

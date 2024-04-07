@@ -79,15 +79,12 @@ namespace Msmp.Server
                                 Buffer.BlockCopy(clientId, 0, clientMovementOut, 0, clientId.Length);
                                 Buffer.BlockCopy(positionData, 0, clientMovementOut, clientId.Length, positionData.Length);
 
-                                Packet packet = new Packet(PacketType.PlayerMovement, clientMovementOut);
-
-                                SendPayload(packet);
+                                SendPayload(new Packet(PacketType.PlayerMovement, clientMovementOut));
                             }
                             break;
                         case PacketType.MoneyChanged:
                             {
-                                Packet packet = new Packet(data);
-                                SendPayload(packet);
+                                SendPayload(new Packet(data));
                             }
                             break;
                         case PacketType.PlayerRotate:
@@ -100,15 +97,14 @@ namespace Msmp.Server
                                 Buffer.BlockCopy(clientId, 0, rotationDataOut, 0, clientId.Length);
                                 Buffer.BlockCopy(rotationData, 0, rotationDataOut, clientId.Length, rotationData.Length);
 
-                                Packet packet = new Packet(PacketType.PlayerRotate, rotationDataOut);
-
-                                SendPayload(packet);
+                                SendPayload(new Packet(PacketType.PlayerRotate, rotationDataOut));
                             }
                             break;
                         case PacketType.PurchaseEvent:
                             {
-                                InMarketShoppingCartPurchase inMarketShoppingCartPurchase = Packet.Deserialize<InMarketShoppingCartPurchase>(data);
-                                OutMarketShoppingCartPurchase outMarketShoppingCartPurchase = new OutMarketShoppingCartPurchase()
+                                InMarketShoppingCartPurchasePacket inMarketShoppingCartPurchase = Packet.Deserialize<InMarketShoppingCartPurchasePacket>(data);
+                           
+                                OutMarketShoppingCartPurchasePacket outMarketShoppingCartPurchase = new OutMarketShoppingCartPurchasePacket()
                                 {
                                     Furnitures = inMarketShoppingCartPurchase.FurnituresIds.Select(x =>
                                         new MarketShoppingCartPurcheItem()
@@ -125,12 +121,15 @@ namespace Msmp.Server
                                         }
                                     ).ToArray(),
                                 };
-
-                                Packet packet = new Packet(PacketType.PurchaseEvent, outMarketShoppingCartPurchase);
-                                SendPayload(packet);
+                               
+                                SendPayload(new Packet(PacketType.PurchaseEvent, outMarketShoppingCartPurchase));
                             }
                             break;
-                    
+                        case PacketType.PickupEvent:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
                     }
                 }
             }
