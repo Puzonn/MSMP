@@ -14,7 +14,7 @@ namespace MSMP.Patch
     [HarmonyPatch("PlaceProductToDisplay")]
     internal class PlaceProductToDisplayPatch
     {
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void PostFix(BoxInteraction __instance)
         {
             DisplaySlot currentDisplaySlot = (DisplaySlot)__instance.GetType()
@@ -47,7 +47,7 @@ namespace MSMP.Patch
             Box currentBox = (Box)__instance.GetType()
                .GetField("m_Box", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
-            if (currentBox == null || !currentBox.HasProducts || currentBox.Product == null)
+            if (currentBox == null)
             {
                 return;
             }
