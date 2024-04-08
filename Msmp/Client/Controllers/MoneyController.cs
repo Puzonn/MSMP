@@ -58,18 +58,13 @@ namespace Msmp.Client.Controllers
                 _client.SendPayload(packet);
 
                 LastMoney = currentMoney;
-
-                _logger.LogInfo($"[Client] [{nameof(MoneyController)}] Syncing money");
             }
         }
 
         public void MoneyChanged(float value)
         {
-            UnityDispatcher.UnitySyncContext.Post(_ =>
-            {
-                _moneyManager.Money = value;
-                _moneyManager.onMoneyTransition?.Invoke(value, MoneyManager.TransitionType.NONE);
-            }, null);
+            _moneyManager.Money = value;
+            _moneyManager.onMoneyTransition?.Invoke(value, MoneyManager.TransitionType.NONE);
         }
     }
 }

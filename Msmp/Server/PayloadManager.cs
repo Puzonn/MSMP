@@ -82,11 +82,6 @@ namespace Msmp.Server
                                 SendPayloadExclude(stream, new Packet(PacketType.PlayerMovement, clientMovementOut));
                             }
                             break;
-                        case PacketType.MoneyChanged:
-                            {
-                                SendPayload(new Packet(data));
-                            }
-                            break;
                         case PacketType.PlayerRotate:
                             {
                                 byte[] clientId = Clients[stream].ClientId.ToByteArray();
@@ -131,6 +126,21 @@ namespace Msmp.Server
                             }
                             break;
                         case PacketType.BoxDropEvent:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.ProductToDisplayEvent:
+                            {
+                                SendPayloadExclude(stream, new Packet(data));
+                            }
+                            break;
+                        case PacketType.OpenBoxEvent:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.MoneyChanged:
                             {
                                 SendPayload(new Packet(data));
                             }

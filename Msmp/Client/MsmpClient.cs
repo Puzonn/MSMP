@@ -12,6 +12,9 @@ using UnityEngine.AI;
 using Msmp.Server.Packets;
 using MSMP.Mono;
 using Msmp.Mono;
+using System.Reflection;
+using MSMP.Server.Packets;
+using System.Collections.Generic;
 
 namespace Msmp.Client
 {
@@ -148,6 +151,7 @@ namespace Msmp.Client
                             case PacketType.PlayerMovement:
                                 {
                                     Guid clientId = new Guid(buffer.Skip(1).Take(bytesRead).Take(16).ToArray());
+
                                     int intX = BitConverter.ToInt32(buffer, 17);
                                     int intY = BitConverter.ToInt32(buffer, 21);
                                     int intZ = BitConverter.ToInt32(buffer, 25);
@@ -156,20 +160,8 @@ namespace Msmp.Client
                                     double y = (double)(intY / 32.0);
                                     double z = (double)(intZ / 32.0);
 
-                                    if (_clientManager.Clients.ContainsKey(clientId))
-                                    {
-                                        GameObject r = _clientManager.Clients[clientId];
-
-                                        if (r == null)
-                                        {
-                                            return;
-                                        }
-
-                                        _clientManager.Clients[clientId].transform.position = new Vector3((float)x, (float)y, (float)z);
-                                    }
-
+                                    _clientManager.Move(clientId, new Vector3((float)x, (float)y, (float)z));
                                 }
-                                //_logger.LogInfo($"[Client] [{nameof(PacketType.PlayerMovement)}] {clientId} x:{x} y:{y} z:{z}");
                                 break;
                             case PacketType.MoneyChanged:
                                 {
@@ -197,6 +189,8 @@ namespace Msmp.Client
                                         box.Setup(product.ItemId, true);
 
                                         box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = product.NetworkItemId;
+
+                                        _clientManager.AddBox(product.NetworkItemId, box);
                                     }
 
                                     foreach(var furniture in items.Furnitures)
@@ -207,6 +201,8 @@ namespace Msmp.Client
                                         box.Setup(furniture.ItemId, true);
 
                                         box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = furniture.NetworkItemId;
+
+                                        _clientManager.AddBox(furniture.NetworkItemId, box);
                                     }
                                 }
                                 break;
@@ -215,18 +211,95 @@ namespace Msmp.Client
                                     /* TODO: Cache all boxes */
                                     BoxPickedupPacket boxPickedupPacket = Packet.Deserialize<BoxPickedupPacket>(buffer);
 
-                                    Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedBox>(),
-                                        x => x.BoxNetworkId == boxPickedupPacket.BoxNetworkId)
-                                    .SetPickedUp(boxPickedupPacket.BoxOwner);
+                                    _clientManager.GetBox(boxPickedupPacket.BoxNetworkId).GetComponent<NetworkedBox>()
+                                   .SetPickedUp(boxPickedupPacket.BoxOwner);
                                 }
                                 break;
                             case PacketType.BoxDropEvent:
                                 {
                                     OutBoxDropPacket boxDropPacket = Packet.Deserialize<OutBoxDropPacket>(buffer);
 
-                                    Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedBox>(),
-                                        x => x.BoxNetworkId == boxDropPacket.BoxNetworkId)
+                                    _clientManager.GetBox(boxDropPacket.BoxNetworkId).GetComponent<NetworkedBox>()
                                     .BoxDropped(new Vector3(boxDropPacket.x, boxDropPacket.y, boxDropPacket.z));
+                                }
+                                break;
+                            case PacketType.ProductToDisplayEvent:
+                                {
+                                    OutProductToDisplayPacket outProductToDisplayPacket = Packet.Deserialize<OutProductToDisplayPacket>(buffer);
+                                    Box box = _clientManager.GetBox(outProductToDisplayPacket.BoxNetworkId);
+
+                                    if(box == null)
+                                    {
+                                        _logger.LogInfo("box was null");
+                                    }
+
+                                    if(box.HasProducts)
+                                    {
+                                        _logger.LogInfo("Box wasn't empty");
+                                    }
+
+                                    Product product = box.GetProductFromBox();
+
+                                    if(product == null)
+                                    {
+                                        _logger.LogInfo("Product was null");
+                                    }
+
+                                    _logger.LogInfo("Box wasn't null");
+
+                                    List<Display> displays = (List<Display>)(Singleton<DisplayManager>.Instance.GetType()
+                                        .GetField("m_Displays", BindingFlags.NonPublic | BindingFlags.Instance)
+                                        .GetValue(Singleton<DisplayManager>.Instance));
+
+                                    if(displays == null) 
+                                    {
+                                        _logger.LogError($"[Client] {nameof(displays)} was null at {PacketType.ProductToDisplayEvent}");
+
+                                        return;
+                                    }
+
+                                    _logger.LogInfo("1");
+
+                                    DisplaySlot[] slots = (DisplaySlot[])displays[0].GetType()
+                                     .GetField("m_DisplaySlots", BindingFlags.NonPublic | BindingFlags.Instance)
+                                     .GetValue(displays[0]);
+
+                                    _logger.LogInfo("2");
+
+                                    if (slots == null)
+                                    {
+                                        _logger.LogError($"[Client] {nameof(slots)} was null at {PacketType.ProductToDisplayEvent}");
+                                        return;
+                                    }
+
+                                    _logger.LogInfo("3");
+
+                                    slots[outProductToDisplayPacket.DisplaySlotId].AddProduct(outProductToDisplayPacket.ProductId, product);
+                                    _logger.LogInfo("4");
+                                    Singleton<InventoryManager>.Instance.AddProductToDisplay(new ItemQuantity
+                                    {
+                                        Products = new Dictionary<int, int>
+                                        {
+                                            {
+                                                 outProductToDisplayPacket.ProductId,
+                                                 1
+                                            }
+                                        }
+                                    });
+                                }
+                                break;
+                            case PacketType.OpenBoxEvent:
+                                {
+                                    OutOpenBoxPacket outOpenBoxPacket = Packet.Deserialize<OutOpenBoxPacket>(buffer);
+
+                                    if(outOpenBoxPacket.State)
+                                    {
+                                        _clientManager.GetBox(outOpenBoxPacket.BoxNetworkId).OpenBox();
+                                    }
+                                    else
+                                    {
+                                        _clientManager.GetBox(outOpenBoxPacket.BoxNetworkId).CloseBox();
+                                    }
                                 }
                                 break;
                         }

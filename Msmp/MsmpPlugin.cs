@@ -9,6 +9,8 @@ using Msmp.Client.Controllers;
 using HarmonyLib;
 using Msmp.Patch;
 using MSMP.Patch;
+using MSMP.Server.Packets;
+using System.Runtime.Remoting.Messaging;
 
 namespace Msmp
 {
@@ -53,6 +55,8 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(DeliveryPatch));
             Harmony.CreateAndPatchAll(typeof(BoxPickupPatch));
             Harmony.CreateAndPatchAll(typeof(BoxDropPatch));
+            Harmony.CreateAndPatchAll(typeof(PlaceProductToDisplayPatch));
+            Harmony.CreateAndPatchAll(typeof(OpenBoxPatch));
         }
 
         private void Update()
@@ -71,24 +75,22 @@ namespace Msmp
                 MsmpClient.Instance = client;
             }
 
-            if (UnityInput.Current.GetKey(KeyCode.F3))
-            {
-                CheckoutInteraction i = UnityEngine.Object.FindObjectsOfType<CheckoutInteraction>()[0];
-
-                i.onCheckoutClosed += (checkout) =>
-                {
-                    Log.LogInfo($"Checkut ! {checkout}");
-                };
-
-                i.onCheckoutBoxed += (checkout) =>
-                {
-                    Log.LogInfo($"Checkout ! boxed");
-                };
-            }
-
             if (UnityInput.Current.GetKeyDown(KeyCode.F1))
             {
                 Singleton<MoneyManager>.Instance.MoneyTransition(500, MoneyManager.TransitionType.BILLS);
+            }
+
+            if (UnityInput.Current.GetKeyDown(KeyCode.F3))
+            {
+                InMarketShoppingCartPurchasePacket marketShoppingCartPurchase = new InMarketShoppingCartPurchasePacket()
+                {
+                    FurnituresIds = new int[0],
+                    ProductsIds = new int[] { 70 },
+                };
+
+                Packet packet = new Packet(PacketType.PurchaseEvent, marketShoppingCartPurchase);
+
+                MsmpClient.Instance.SendPayload(packet);
             }
 
             if (UnityInput.Current.GetKeyDown(KeyCode.F5) && !client.Connected)

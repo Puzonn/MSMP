@@ -7,7 +7,16 @@ namespace Msmp.Client
     internal class ClientManager
     {
         /* GameObject is reference to PlayerController */
-        public Dictionary<Guid, GameObject> Clients = new Dictionary<Guid, GameObject>();
+        public readonly Dictionary<Guid, GameObject> Clients = new Dictionary<Guid, GameObject>();
+        public readonly Dictionary<Guid, Box> Boxes = new Dictionary<Guid, Box>();
+
+        public void AddBox(Guid id, Box box)
+        {
+            Boxes.Add(id, box);   
+        }
+
+        public Box GetBox(Guid id)
+            => Boxes.GetValueOrDefault(id);
 
         public void AddOrUpdateClient(Guid guid, GameObject gameObject)
         {
