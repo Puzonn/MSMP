@@ -1,5 +1,7 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 using MSMP.Mono;
+using MyBox;
 using UnityEngine;
 
 /*
@@ -12,7 +14,7 @@ namespace Msmp.Patch
     internal class BoxPickupPatch
     {
         [HarmonyPostfix]
-        static void Postfix(GameObject item)
+        static void Postfix(PlayerObjectHolder __instance, GameObject item)
         {
             item.GetComponent<NetworkedBox>()
                 .SetPickedUp(true, true);

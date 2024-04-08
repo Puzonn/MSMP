@@ -15,7 +15,7 @@ namespace MSMP.Patch
     internal class PlaceProductToDisplayPatch
     {
         [HarmonyPrefix]
-        static void PostFix(BoxInteraction __instance)
+        static void Prefix(BoxInteraction __instance)
         {
             DisplaySlot currentDisplaySlot = (DisplaySlot)__instance.GetType()
             .GetField("m_CurrentDisplaySlot", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
@@ -58,7 +58,7 @@ namespace MSMP.Patch
             {
                 DisplayId = displayIndex,
                 DisplaySlotId = index,
-                BoxNetworkId = currentBox.GetComponent<NetworkedBox>().BoxNetworkId,
+                BoxNetworkId = currentBox.GetComponent<NetworkedBox>().NetworkId,
                 ProductId = currentBox.Product.ID
             };
 

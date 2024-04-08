@@ -25,6 +25,9 @@
     <Reference Include="BepInEx">
       <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="LeanPool">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\LeanPool.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib">
       <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\mscorlib.dll</HintPath>
     </Reference>

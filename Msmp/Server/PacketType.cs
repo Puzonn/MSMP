@@ -15,6 +15,8 @@ namespace Msmp.Server
         BoxPickupEvent = 0x7,
         BoxDropEvent = 0x8,
         ProductToDisplayEvent = 0x9,
-        OpenBoxEvent = 0x10
+        OpenBoxEvent = 0x10,
+        SpawnTrafficNpc = 0x11,
+        TrafficNpcSetDestination = 0x12
     }
 }

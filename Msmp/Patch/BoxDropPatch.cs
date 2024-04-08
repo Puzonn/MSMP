@@ -19,7 +19,7 @@ namespace Msmp.Patch
             GameObject currentObject = (GameObject)__instance.GetType()
              .GetField("m_CurrentObject", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
-            Guid boxNetworkId = currentObject.GetComponent<NetworkedBox>().BoxNetworkId;
+            Guid boxNetworkId = currentObject.GetComponent<NetworkedBox>().NetworkId;
 
             OutBoxDropPacket outBoxDropPacket = new OutBoxDropPacket()
             {

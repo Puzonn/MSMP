@@ -29,7 +29,7 @@ namespace Msmp.Patch
             {
                 return;
             }
-            Console.WriteLine("not gol");
+
             networkedBox.SetPickedUp(false, false);
         }
     }

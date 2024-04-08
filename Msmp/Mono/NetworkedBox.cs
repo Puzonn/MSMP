@@ -2,6 +2,7 @@
 using Msmp.Mono;
 using Msmp.Server;
 using Msmp.Server.Packets;
+using MyBox;
 using System;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace MSMP.Mono
 {
     internal class NetworkedBox : MonoBehaviour
     {
-        public Guid BoxNetworkId { get; set; }  
+        public Guid NetworkId { get; set; }  
         
         public Guid OwnerNetworkId { get; private set; }
 
@@ -18,6 +19,8 @@ namespace MSMP.Mono
         private readonly MsmpClient _client = MsmpClient.Instance;
 
         private GameObject _Owner;
+
+        public bool HasOwner => _Owner != null;
 
         public void Update()
         {
@@ -62,7 +65,7 @@ namespace MSMP.Mono
 
             BoxPickedupPacket boxPickedupPacket = new BoxPickedupPacket()
             {
-                BoxNetworkId = this.BoxNetworkId,
+                BoxNetworkId = this.NetworkId,
                 BoxOwner = _client.LocalClientNetworkId,
             };
 
@@ -83,7 +86,6 @@ namespace MSMP.Mono
         public void BoxDropped(Vector3 dropPosition)
         {
             transform.position = dropPosition;
-            Console.WriteLine($"Drop: {dropPosition}");
             _Owner = null;
             OwnerNetworkId = default;
             PickedUp = false;

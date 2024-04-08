@@ -57,6 +57,8 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(BoxDropPatch));
             Harmony.CreateAndPatchAll(typeof(PlaceProductToDisplayPatch));
             Harmony.CreateAndPatchAll(typeof(OpenBoxPatch));
+            Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerPatch));
+            Harmony.CreateAndPatchAll(typeof(WaypointNavigatorPatch));
         }
 
         private void Update()

@@ -15,6 +15,7 @@ using Msmp.Mono;
 using System.Reflection;
 using MSMP.Server.Packets;
 using System.Collections.Generic;
+using MSMP.Patch;
 
 namespace Msmp.Client
 {
@@ -188,7 +189,7 @@ namespace Msmp.Client
 
                                         box.Setup(product.ItemId, true);
 
-                                        box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = product.NetworkItemId;
+                                        box.GetOrAddComponent<NetworkedBox>().NetworkId = product.NetworkItemId;
 
                                         _clientManager.AddBox(product.NetworkItemId, box);
                                     }
@@ -200,7 +201,7 @@ namespace Msmp.Client
 
                                         box.Setup(furniture.ItemId, true);
 
-                                        box.GetOrAddComponent<NetworkedBox>().BoxNetworkId = furniture.NetworkItemId;
+                                        box.GetOrAddComponent<NetworkedBox>().NetworkId = furniture.NetworkItemId;
 
                                         _clientManager.AddBox(furniture.NetworkItemId, box);
                                     }
@@ -276,6 +277,20 @@ namespace Msmp.Client
                                     {
                                         _clientManager.GetBox(outOpenBoxPacket.BoxNetworkId).CloseBox();
                                     }
+                                }
+                                break;
+                            case PacketType.SpawnTrafficNpc:
+                                {
+                                    OutSpawnTrafficNpcPacket spawnTrafficNpcPacket = Packet.Deserialize<OutSpawnTrafficNpcPacket>(buffer);
+                                    NpcTrafficManagerPatch.SpawnNpc(spawnTrafficNpcPacket);
+                                }
+                                break;
+                            case PacketType.TrafficNpcSetDestination:
+                                {
+                                    _logger.LogInfo($"[Client] Setting npc traffit at {nameof(PacketType.TrafficNpcSetDestination)}");
+                                    OutTrafficNpcSetDestinationPacket outTrafficNpcSetDestinationPacket 
+                                        = Packet.Deserialize<OutTrafficNpcSetDestinationPacket>(buffer);
+                                    WaypointNavigatorPatch.SetDestination(outTrafficNpcSetDestinationPacket);
                                 }
                                 break;
                         }

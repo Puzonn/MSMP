@@ -16,14 +16,14 @@ namespace MSMP.Patch
         {
             NetworkedBox networkedBox = __instance.GetComponent<NetworkedBox>();
 
-            if(__instance.IsOpen || networkedBox.BoxNetworkId == MsmpClient.Instance.LocalClientNetworkId)
+            if(__instance.IsOpen || networkedBox.NetworkId == MsmpClient.Instance.LocalClientNetworkId)
             {
                 return;
             }
 
             OutOpenBoxPacket outOpenBoxPacket = new OutOpenBoxPacket()
             {
-                BoxNetworkId = networkedBox.BoxNetworkId,
+                BoxNetworkId = networkedBox.NetworkId,
                 State = true,
             };
 

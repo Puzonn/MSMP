@@ -145,6 +145,17 @@ namespace Msmp.Server
                                 SendPayload(new Packet(data));
                             }
                             break;
+                        case PacketType.SpawnTrafficNpc:
+                            {
+                                /* TODO: Let server set the networkid for npc */
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.TrafficNpcSetDestination:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
                     }
                 }
             }
