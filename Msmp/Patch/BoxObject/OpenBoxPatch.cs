@@ -3,9 +3,8 @@ using Msmp.Client;
 using Msmp.Server;
 using MSMP.Mono;
 using MSMP.Server.Packets;
-using System;
 
-namespace MSMP.Patch
+namespace MSMP.Patch.BoxObject
 {
     [HarmonyPatch(typeof(Box))]
     [HarmonyPatch("OpenBox")]

@@ -7,10 +7,12 @@ using UnityEngine;
 using System.Threading;
 using Msmp.Client.Controllers;
 using HarmonyLib;
-using Msmp.Patch;
 using MSMP.Patch;
 using MSMP.Server.Packets;
-using System.Runtime.Remoting.Messaging;
+using MSMP.Patch.Traffic;
+using MSMP.Patch.BoxObject;
+using MSMP.Patch.Shop;
+using MSMP.Patch.Customer;
 
 namespace Msmp
 {
@@ -59,6 +61,7 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(OpenBoxPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerPatch));
             Harmony.CreateAndPatchAll(typeof(WaypointNavigatorPatch));
+            Harmony.CreateAndPatchAll(typeof(CustomerManagerPatch));
         }
 
         private void Update()

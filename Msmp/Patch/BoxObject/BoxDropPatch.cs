@@ -7,11 +7,11 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-namespace Msmp.Patch
+namespace MSMP.Patch.BoxObject
 {
     [HarmonyPatch(typeof(PlayerObjectHolder))]
     [HarmonyPatch("DropObject")]
-    internal class BoxDropPatch    
+    internal class BoxDropPatch
     {
         [HarmonyPrefix]
         static void Prefix(PlayerObjectHolder __instance)

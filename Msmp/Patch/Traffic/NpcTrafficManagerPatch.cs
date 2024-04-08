@@ -11,7 +11,7 @@ using MyBox;
 using Msmp.Server;
 using Msmp.Client;
 
-namespace MSMP.Patch
+namespace MSMP.Patch.Traffic
 {
     [HarmonyPatch(typeof(NPCTrafficManager))]
     [HarmonyPatch("SpawnNPC")]
@@ -26,7 +26,7 @@ namespace MSMP.Patch
                 return false;
             }
 
-            if(!MsmpClient.Instance.Connected)
+            if (!MsmpClient.Instance.Connected)
             {
                 Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] You're not connected to any server");
                 return false;
@@ -52,7 +52,7 @@ namespace MSMP.Patch
             int randomEnterence = Random.Range(0, m_BuildingEnterences.Length);
             float speed = Random.Range(m_SpeedRange.x, m_SpeedRange.y);
             int waypointTravelCount = Random.Range(m_TripLengthRange.x, m_TripLengthRange.y);
-            bool forward = (float)Mathf.RoundToInt(Random.value) == 0f;
+            bool forward = Mathf.RoundToInt(Random.value) == 0f;
             Guid networkId = Guid.NewGuid();
 
             OutSpawnTrafficNpcPacket outSpawnTrafficNpcPacket = new OutSpawnTrafficNpcPacket()
@@ -92,7 +92,7 @@ namespace MSMP.Patch
 
             WaypointNavigator prefab = m_NPCPrefabs[packet.Prefab];
             BuildingEnterence buildingEnterence = m_BuildingEnterences[packet.Enterence];
-            WaypointNavigator waypointNavigator = LeanPool.Spawn<WaypointNavigator>
+            WaypointNavigator waypointNavigator = LeanPool.Spawn
                 (prefab, buildingEnterence.transform.position, buildingEnterence.transform.rotation, manager.transform);
             waypointNavigator.SetupTravel(buildingEnterence.GetWaypoint(packet.Forward), packet.Forward, packet.WaypointTravelCount, packet.Speed);
             waypointNavigator.gameObject.AddComponent<NetworkedTrafficNPC>().NetworkId = packet.NetworkId;

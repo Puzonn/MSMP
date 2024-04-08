@@ -1,12 +1,9 @@
 ﻿using HarmonyLib;
 using MSMP.Mono;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace Msmp.Patch
+namespace MSMP.Patch.BoxObject
 {
     [HarmonyPatch(typeof(PlayerObjectHolder))]
     [HarmonyPatch("ThrowObject")]

@@ -6,7 +6,7 @@ using System.Linq;
 using MSMP.Server.Packets;
 using System;
 
-namespace Msmp.Patch
+namespace MSMP.Patch.Shop
 {
     [HarmonyPatch(typeof(MarketShoppingCart))]
     [HarmonyPatch("Purchase")]
@@ -18,7 +18,7 @@ namespace Msmp.Patch
             MarketShoppingCart.CartData m_CartData = (MarketShoppingCart.CartData)__instance.GetType()
                 .GetField("m_CartData", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
-            if(m_CartData == null || m_CartData.ProductInCarts == null || m_CartData.FurnituresInCarts == null)
+            if (m_CartData == null || m_CartData.ProductInCarts == null || m_CartData.FurnituresInCarts == null)
             {
                 throw new Exception($"{nameof(m_CartData)} was null at {nameof(PurchasePatch)}");
             }

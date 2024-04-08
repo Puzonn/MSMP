@@ -7,7 +7,7 @@ using UnityEngine;
 /*
  TODO: Before picking up check if other client is not picking the same box on server
 */
-namespace Msmp.Patch
+namespace MSMP.Patch.BoxObject
 {
     [HarmonyPatch(typeof(PlayerObjectHolder))]
     [HarmonyPatch("HoldObject")]

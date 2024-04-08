@@ -16,6 +16,7 @@ using System.Reflection;
 using MSMP.Server.Packets;
 using System.Collections.Generic;
 using MSMP.Patch;
+using MSMP.Patch.Traffic;
 
 namespace Msmp.Client
 {
@@ -287,7 +288,6 @@ namespace Msmp.Client
                                 break;
                             case PacketType.TrafficNpcSetDestination:
                                 {
-                                    _logger.LogInfo($"[Client] Setting npc traffit at {nameof(PacketType.TrafficNpcSetDestination)}");
                                     OutTrafficNpcSetDestinationPacket outTrafficNpcSetDestinationPacket 
                                         = Packet.Deserialize<OutTrafficNpcSetDestinationPacket>(buffer);
                                     WaypointNavigatorPatch.SetDestination(outTrafficNpcSetDestinationPacket);
