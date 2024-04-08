@@ -20,13 +20,15 @@ namespace MSMP.Patch
         [HarmonyPrefix]
         static bool Prefix(NPCTrafficManager __instance)
         {
-            if (!MsmpClient.Instance.IsServer)
+            if (MsmpClient.Instance == null || !MsmpClient.Instance.IsServer)
             {
+                Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] You're not server");
                 return false;
             }
 
-            if(MsmpClient.Instance == null || !MsmpClient.Instance.Connected)
+            if(!MsmpClient.Instance.Connected)
             {
+                Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] You're not connected to any server");
                 return false;
             }
 
@@ -66,6 +68,8 @@ namespace MSMP.Patch
             Packet packet = new Packet(PacketType.SpawnTrafficNpc, outSpawnTrafficNpcPacket);
 
             MsmpClient.Instance.SendPayload(packet);
+
+            Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] {PacketType.SpawnTrafficNpc} id: {outSpawnTrafficNpcPacket.NetworkId}");
 
             return false;
         }

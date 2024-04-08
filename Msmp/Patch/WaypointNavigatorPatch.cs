@@ -18,6 +18,12 @@ namespace MSMP.Patch
         [HarmonyPostfix]
         static void Postfix(WaypointNavigator __instance)
         {
+            if (MsmpClient.Instance == null || !MsmpClient.Instance.IsServer)
+            {
+                Console.WriteLine($"[Client] [{nameof(WaypointNavigatorPatch)}] You're not server");
+                return;
+            }
+
             Waypoint nextWaypoint = (Waypoint)__instance.GetType()
                 .GetField("m_CurrentWaypoint", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
@@ -49,14 +55,13 @@ namespace MSMP.Patch
 
             if(navigator == null)
             {
-                Console.WriteLine($"NPC dose not exist with current navigator id: {packet.NetworkId}");
+                Console.WriteLine($"[Client] [{nameof(WaypointNavigatorPatch)}] NPC dose not exist with current navigator id: {packet.NetworkId}");
                 return;
             }
 
             NPC npc = (NPC)navigator.GetType().GetField("m_Npc", BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(navigator);
 
-            Console.WriteLine("Setting destination");
             npc.SetDestination(new Vector3(packet.x, packet.y, packet.z));
         }
     }
