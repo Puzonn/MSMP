@@ -228,24 +228,7 @@ namespace Msmp.Client
                                     OutProductToDisplayPacket outProductToDisplayPacket = Packet.Deserialize<OutProductToDisplayPacket>(buffer);
                                     Box box = _clientManager.GetBox(outProductToDisplayPacket.BoxNetworkId);
 
-                                    if(box == null)
-                                    {
-                                        _logger.LogInfo("box was null");
-                                    }
-
-                                    if(box.HasProducts)
-                                    {
-                                        _logger.LogInfo("Box wasn't empty");
-                                    }
-
                                     Product product = box.GetProductFromBox();
-
-                                    if(product == null)
-                                    {
-                                        _logger.LogInfo("Product was null");
-                                    }
-
-                                    _logger.LogInfo("Box wasn't null");
 
                                     List<Display> displays = (List<Display>)(Singleton<DisplayManager>.Instance.GetType()
                                         .GetField("m_Displays", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -258,13 +241,9 @@ namespace Msmp.Client
                                         return;
                                     }
 
-                                    _logger.LogInfo("1");
-
                                     DisplaySlot[] slots = (DisplaySlot[])displays[0].GetType()
                                      .GetField("m_DisplaySlots", BindingFlags.NonPublic | BindingFlags.Instance)
-                                     .GetValue(displays[0]);
-
-                                    _logger.LogInfo("2");
+                                     .GetValue(displays[outProductToDisplayPacket.DisplayId]);
 
                                     if (slots == null)
                                     {
@@ -272,10 +251,7 @@ namespace Msmp.Client
                                         return;
                                     }
 
-                                    _logger.LogInfo("3");
-
                                     slots[outProductToDisplayPacket.DisplaySlotId].AddProduct(outProductToDisplayPacket.ProductId, product);
-                                    _logger.LogInfo("4");
                                     Singleton<InventoryManager>.Instance.AddProductToDisplay(new ItemQuantity
                                     {
                                         Products = new Dictionary<int, int>

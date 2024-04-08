@@ -6,9 +6,7 @@ using MSMP.Server.Packets;
 using MyBox;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using UnityEngine;
 
 namespace MSMP.Patch
 {
@@ -16,16 +14,28 @@ namespace MSMP.Patch
     [HarmonyPatch("PlaceProductToDisplay")]
     internal class PlaceProductToDisplayPatch
     {
-        private static DisplaySlot _currentDisplaySlot;
-
         [HarmonyPostfix]
         static void PostFix(BoxInteraction __instance)
         {
             DisplaySlot currentDisplaySlot = (DisplaySlot)__instance.GetType()
             .GetField("m_CurrentDisplaySlot", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
+            if(currentDisplaySlot == null || currentDisplaySlot.Display == null)
+            {
+                return;
+            }
+
             DisplaySlot[] slots = (DisplaySlot[])currentDisplaySlot.Display.GetType().GetField("m_DisplaySlots", BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(currentDisplaySlot.Display);
+
+            if(slots == null)
+            {
+                return;
+            }
+
+            List<Display> displays = (List<Display>)(Singleton<DisplayManager>.Instance.GetType()
+                                        .GetField("m_Displays", BindingFlags.NonPublic | BindingFlags.Instance)
+                                        .GetValue(Singleton<DisplayManager>.Instance));
 
             int index = slots.FirstIndex(x => x == currentDisplaySlot);
 
@@ -37,21 +47,16 @@ namespace MSMP.Patch
             Box currentBox = (Box)__instance.GetType()
                .GetField("m_Box", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
-            if (currentBox == null)
+            if (currentBox == null || !currentBox.HasProducts || currentBox.Product == null)
             {
                 return;
             }
 
-            int displayIndex = -1;
-
-            foreach (var a in Singleton<DisplayManager>.Instance.DisplayedProducts)
-            {
-                displayIndex = a.Value.FindIndex(x => x == currentDisplaySlot);
-            }
+            int displayIndex = displays.FindIndex(x => x == currentDisplaySlot.Display);    
 
             OutProductToDisplayPacket outProductToDisplayPacket = new OutProductToDisplayPacket()
             {
-                DisplayId = currentDisplaySlot.Display.ID,
+                DisplayId = displayIndex,
                 DisplaySlotId = index,
                 BoxNetworkId = currentBox.GetComponent<NetworkedBox>().BoxNetworkId,
                 ProductId = currentBox.Product.ID
