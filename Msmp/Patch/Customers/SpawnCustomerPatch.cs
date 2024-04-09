@@ -6,14 +6,11 @@ using System.Reflection;
 using System.Collections.Generic;
 using Lean.Pool;
 using Random = UnityEngine.Random;
-using MSMP.Server.Packets;
+using Msmp.Server.Packets;
 using Msmp.Server;
 using Msmp.Client;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reflection.Emit;
 
-namespace MSMP.Patch.Customers
+namespace Msmp.Patch.Customers
 {
     [HarmonyPatch(typeof(CustomerManager))]
     [HarmonyPatch("SpawnCustomer", new Type[] {})]

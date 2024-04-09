@@ -1,14 +1,14 @@
 ﻿using HarmonyLib;
 using Msmp.Client;
 using Msmp.Server;
-using MSMP.Mono;
-using MSMP.Server.Packets;
+using Msmp.Mono;
+using Msmp.Server.Packets;
 using MyBox;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace MSMP.Patch
+namespace Msmp.Patch.Shop
 {
     [HarmonyPatch(typeof(BoxInteraction))]
     [HarmonyPatch("PlaceProductToDisplay")]

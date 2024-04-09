@@ -1,6 +1,4 @@
-﻿using Msmp.Client;
-
-namespace MSMP.Client
+﻿namespace Msmp.Client
 {
     internal class MsmpNPCTrafficManager
     {

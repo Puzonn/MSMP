@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MSMP.Mono
+namespace Msmp.Mono
 {
     internal class NetworkedTrafficNPC : MonoBehaviour
     {

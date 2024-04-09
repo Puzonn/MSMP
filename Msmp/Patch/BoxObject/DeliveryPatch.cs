@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace MSMP.Patch.BoxObject
+namespace Msmp.Patch.BoxObject
 {
     [HarmonyPatch(typeof(DeliveryManager))]
     [HarmonyPatch("Delivery")]

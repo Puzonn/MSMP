@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MSMP.Server.Packets
+namespace Msmp.Server.Packets
 {
     [Serializable]
     internal class OutSpawnCustomerVector : OutSpawnCustomer

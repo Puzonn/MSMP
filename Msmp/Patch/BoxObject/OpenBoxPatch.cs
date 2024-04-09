@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using Msmp.Client;
 using Msmp.Server;
-using MSMP.Mono;
-using MSMP.Server.Packets;
+using Msmp.Mono;
+using Msmp.Server.Packets;
 
-namespace MSMP.Patch.BoxObject
+namespace Msmp.Patch.BoxObject
 {
     [HarmonyPatch(typeof(Box))]
     [HarmonyPatch("OpenBox")]

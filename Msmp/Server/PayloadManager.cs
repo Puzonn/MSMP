@@ -4,10 +4,8 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using Msmp.Server.Models;
 using BepInEx.Logging;
-using MSMP.Server.Packets;
 using Msmp.Server.Packets;
 using System.Linq;
-using MSMP.Server.Models;
 
 namespace Msmp.Server
 {
@@ -31,8 +29,8 @@ namespace Msmp.Server
             Clients.Add(stream, new ClientModel()
             {
                 x = 0,
-                z = 0,
                 y = 0,
+                z = 0,
                 ClientId = networkId,
             });
         }
@@ -41,7 +39,7 @@ namespace Msmp.Server
         {
             while (true)
             {
-                byte[] data = new byte[1024];
+                byte[] data = new byte[1024 * 24];
 
                 if (stream.Read(data, 0, data.Length) > 0)
                 {
@@ -168,7 +166,7 @@ namespace Msmp.Server
                             break;
                         case PacketType.SyncAll:
                             {
-                                SendPayloadExclude(stream, new Packet(data));  
+                                SendPayload(new Packet(data));  
                             }
                             break;
                     }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MSMP.Server.Packets
+namespace Msmp.Server.Packets
 {
     [Serializable]
     internal class OutTrafficNpcSetDestinationPacket

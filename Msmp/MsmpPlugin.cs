@@ -5,14 +5,14 @@ using Msmp.Server;
 using MyBox;
 using UnityEngine;
 using System.Threading;
+using Msmp.Patch.Shop;
 using Msmp.Client.Controllers;
 using HarmonyLib;
-using MSMP.Patch;
-using MSMP.Server.Packets;
-using MSMP.Patch.Traffic;
-using MSMP.Patch.BoxObject;
-using MSMP.Patch.Shop;
-using MSMP.Patch.Customers;
+using Msmp.Server.Packets;
+using Msmp.Patch.Traffic;
+using Msmp.Patch.BoxObject;
+using Msmp.Patch.Customers;
+using System;
 
 namespace Msmp
 {
@@ -30,7 +30,7 @@ namespace Msmp
         private readonly CheckoutController checkoutController;
 
         private const string MyGUID = "com.Puzonne.Msmp";
-        private const string PluginName = "Msmp";
+        private const string PluginName = "Msmp.";
         private const string VersionString = "1.0.0";
 
         public static ManualLogSource Log = new ManualLogSource(PluginName);
@@ -84,6 +84,25 @@ namespace Msmp
             if (UnityInput.Current.GetKeyDown(KeyCode.F1))
             {
                 Singleton<MoneyManager>.Instance.MoneyTransition(500, MoneyManager.TransitionType.BILLS);
+            }
+
+            if (UnityInput.Current.GetKeyDown(KeyCode.F2))
+            {
+                MsmpSynchronizationContext SyncContext = client.SyncContext;
+
+                OutSyncAllPacket outSyncAllPacket = new OutSyncAllPacket()
+                {
+                    Money = 0,
+                    TrafficNPCs = SyncContext.GetSyncTrafficNPCs(),
+                };
+
+                Console.WriteLine($"[Client] [{nameof(PacketType.OnConnection)}] SyncTraffic c:{outSyncAllPacket.TrafficNPCs.Count}");
+
+                Packet packet = new Packet(PacketType.SyncAll, outSyncAllPacket);
+
+                Console.WriteLine($"PacketType before [{(PacketType)packet._type}]");
+
+                client.SendPayload(packet);
             }
 
             if (UnityInput.Current.GetKeyDown(KeyCode.F3))

@@ -5,13 +5,16 @@ using System.Reflection;
 using Random = UnityEngine.Random;
 using Lean.Pool;
 using System.Collections.Generic;
-using MSMP.Mono;
-using MSMP.Server.Packets;
+using Msmp.Mono;
+using Msmp.Server.Packets;
 using MyBox;
 using Msmp.Server;
 using Msmp.Client;
+using Msmp.Client.SynchronizationContainers;
+using Msmp.Server.Models.Sync;
+using System.Runtime.InteropServices;
 
-namespace MSMP.Patch.Traffic
+namespace Msmp.Patch.Traffic
 {
     [HarmonyPatch(typeof(NPCTrafficManager))]
     [HarmonyPatch("SpawnNPC")]
@@ -53,6 +56,7 @@ namespace MSMP.Patch.Traffic
             float speed = Random.Range(m_SpeedRange.x, m_SpeedRange.y);
             int waypointTravelCount = Random.Range(m_TripLengthRange.x, m_TripLengthRange.y);
             bool forward = Mathf.RoundToInt(Random.value) == 0f;
+
             Guid networkId = Guid.NewGuid();
 
             OutSpawnTrafficNpcPacket outSpawnTrafficNpcPacket = new OutSpawnTrafficNpcPacket()
@@ -74,7 +78,15 @@ namespace MSMP.Patch.Traffic
             return false;
         }
 
-        public static void SpawnNpc(OutSpawnTrafficNpcPacket packet)
+        public static void SpawnTraffic(OutSpawnTrafficNpcPacket packet)
+        {
+            SpawnTraffic(packet.Prefab, packet.Enterence, packet.Forward, packet.WaypointTravelCount,packet.Speed, packet.NetworkId);
+
+            Console.WriteLine($"[Client] {PacketType.SpawnTrafficNpc} spawned id: {packet.NetworkId}");
+        }
+
+        public static WaypointNavigator SpawnTraffic(int prefab, int enterance,
+            bool forward, int travelCount, float speed, Guid networkId)
         {
             NPCTrafficManager manager = Singleton<NPCTrafficManager>.Instance;
 
@@ -90,16 +102,95 @@ namespace MSMP.Patch.Traffic
               .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)
               .GetValue(manager);
 
-            WaypointNavigator prefab = m_NPCPrefabs[packet.Prefab];
-            BuildingEnterence buildingEnterence = m_BuildingEnterences[packet.Enterence];
             WaypointNavigator waypointNavigator = LeanPool.Spawn
-                (prefab, buildingEnterence.transform.position, buildingEnterence.transform.rotation, manager.transform);
-            waypointNavigator.SetupTravel(buildingEnterence.GetWaypoint(packet.Forward), packet.Forward, packet.WaypointTravelCount, packet.Speed);
-            waypointNavigator.gameObject.AddComponent<NetworkedTrafficNPC>().NetworkId = packet.NetworkId;
+               (m_NPCPrefabs[prefab], m_BuildingEnterences[enterance].transform.position, 
+               m_BuildingEnterences[enterance].transform.rotation, manager.transform);
+
+            waypointNavigator.SetupTravel(m_BuildingEnterences[enterance].GetWaypoint(forward), forward, travelCount, speed);
+            waypointNavigator.gameObject.AddComponent<NetworkedTrafficNPC>().NetworkId = networkId;
 
             m_ActiveNPCs.Add(waypointNavigator);
 
-            Console.WriteLine($"[Client] {PacketType.SpawnTrafficNpc} spawned id: {packet.NetworkId}");
+            if (MsmpClient.Instance.IsServer)
+            {
+                MsmpClient.Instance.SyncContext.NpcTrafficContainer.Add(new NpcTrafficSyncContainer.SyncTrafficNPC()
+                {
+                    Enterence = enterance,
+                    Forward = forward,
+                    NetworkId = networkId,
+                    Prefab = prefab,
+                    Speed = speed,
+                    Navigator = waypointNavigator
+                });
+            }
+
+            return waypointNavigator;
+        }
+
+        public static WaypointNavigator SpawnTraffic(int prefab, int enterance,
+           bool forward, int travelCount, float speed, Guid networkId, Vector3 waypoint, Vector3 position)
+        {
+            NPCTrafficManager manager = Singleton<NPCTrafficManager>.Instance;
+
+            WaypointNavigator[] m_NPCPrefabs = (WaypointNavigator[])manager.GetType()
+               .GetField("m_NPCPrefabs", BindingFlags.NonPublic | BindingFlags.Instance)
+               .GetValue(manager);
+
+            BuildingEnterence[] m_BuildingEnterences = (BuildingEnterence[])manager.GetType()
+               .GetField("m_BuildingEnterences", BindingFlags.NonPublic | BindingFlags.Instance)
+               .GetValue(manager);
+
+            List<WaypointNavigator> m_ActiveNPCs = (List<WaypointNavigator>)manager.GetType()
+              .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)
+              .GetValue(manager);
+
+            WaypointNavigator waypointNavigator = LeanPool.Spawn
+               (m_NPCPrefabs[prefab], m_BuildingEnterences[enterance].transform.position,
+               m_BuildingEnterences[enterance].transform.rotation, manager.transform);
+            
+            waypointNavigator.SetupTravel(m_BuildingEnterences[enterance].GetWaypoint(forward), forward, travelCount, speed);
+            waypointNavigator.gameObject.AddComponent<NetworkedTrafficNPC>().NetworkId = networkId;
+
+            waypointNavigator.GetComponent<NPC>().SetDestination(waypoint);
+
+            m_ActiveNPCs.Add(waypointNavigator);
+
+            if (MsmpClient.Instance.IsServer)
+            {
+                MsmpClient.Instance.SyncContext.NpcTrafficContainer.Add(new NpcTrafficSyncContainer.SyncTrafficNPC()
+                {
+                    Enterence = enterance,
+                    Forward = forward,
+                    NetworkId = networkId,
+                    Prefab = prefab,
+                    Speed = speed,
+                    Navigator = waypointNavigator
+                });
+            }
+
+            return waypointNavigator;
+        }
+
+        public static void SyncTraffic(List<SyncTrafficNPCModel> packet) 
+        {
+            NPCTrafficManager manager = Singleton<NPCTrafficManager>.Instance;
+
+            List<WaypointNavigator> m_ActiveNPCs = (List<WaypointNavigator>)manager.GetType()
+                .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)  
+                .GetValue(manager);
+
+            Console.WriteLine($"[Client] [{nameof(PacketType.SyncAll)}] Despawning all current traffic");
+
+            foreach (var trafficNpc in m_ActiveNPCs)
+            {
+                UnityEngine.Object.Destroy(trafficNpc);
+            }
+
+            foreach(var npc in packet)
+            {
+                SpawnTraffic(npc.Prefab, npc.Enterence, npc.Forward, npc.WaypointTravelCount,
+                    npc.Speed, npc.NetworkId, npc.NextWaypointPosition.ToVector3(), npc.Position.ToVector3());
+            }
         }
     }
 }

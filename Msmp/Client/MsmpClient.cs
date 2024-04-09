@@ -10,14 +10,12 @@ using MyBox;
 using Msmp.Client.Controllers;
 using UnityEngine.AI;
 using Msmp.Server.Packets;
-using MSMP.Mono;
 using Msmp.Mono;
 using System.Reflection;
-using MSMP.Server.Packets;
 using System.Collections.Generic;
-using MSMP.Patch;
-using MSMP.Patch.Traffic;
-using MSMP.Patch.Customers;
+using Msmp.Patch;
+using Msmp.Patch.Traffic;
+using Msmp.Patch.Customers;
 
 namespace Msmp.Client
 {
@@ -48,23 +46,26 @@ namespace Msmp.Client
         private NetworkStream GetStream()
             => _client.GetStream();
 
-        private Thread _responseThread;
+        private readonly Thread _responseThread;
 
         private readonly ManualLogSource _logger;
 
+        public readonly MsmpSynchronizationContext SyncContext;
+
         public MsmpClient(ManualLogSource logger, ClientManager clientManager)
         {
+            SyncContext = new MsmpSynchronizationContext(logger, this);
             _logger = logger;
-            _logger.LogInfo("Starting Msmp client");
+            _logger.LogInfo("Starting client");
             _clientManager = clientManager;
-            _client = new TcpClient();  
+            _client = new TcpClient();
+            _responseThread = new Thread(WaitForResponse);
         }
 
         public void BuildClient(bool isServer)
         {
             IsServer = isServer;
             _client.Connect("localhost", 35555);
-            _responseThread = new Thread(WaitForResponse);
             _responseThread.Start();
         }
 
@@ -76,8 +77,7 @@ namespace Msmp.Client
 
             while (true)
             {
-                // Adjust buffer length if buffer is somehow cut off
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[1024 * 24];
 
                 int bytesRead = _stream.Read(buffer, 0, buffer.Length);
 
@@ -87,10 +87,29 @@ namespace Msmp.Client
                     {
                         PacketType packetType = (PacketType)buffer[0];
 
+                        _logger.LogInfo($"[Client] [{packetType}] length: {bytesRead}");
+
                         switch (packetType)
                         {
                             case PacketType.OnConnection:
                                 {
+                                    if(IsServer)
+                                    {
+                                        Console.WriteLine($"[Client] [{nameof(PacketType.OnConnection)}] New client connected. Syncing all clients");
+
+                                        OutSyncAllPacket outSyncAllPacket = new OutSyncAllPacket()
+                                        {
+                                            Money = 0,
+                                            TrafficNPCs = SyncContext.GetSyncTrafficNPCs(),
+                                        };
+
+                                        Console.WriteLine($"[Client] [{nameof(PacketType.OnConnection)}] SyncTraffic c:{outSyncAllPacket.TrafficNPCs.Count}");
+
+                                        Packet packet = new Packet(PacketType.SyncAll, outSyncAllPacket);
+
+                                        SendPayload(packet);
+                                    }
+
                                     UserConnected conn = Packet.Deserialize<UserConnected>(buffer.Take(bytesRead).ToArray());
 
                                     LocalClientNetworkId = conn.NetworkId;
@@ -131,8 +150,6 @@ namespace Msmp.Client
                                                 UnityEngine.Object.Destroy(comp);
                                                 continue;
                                             }
-
-                                            _logger.LogInfo(comp.GetType().Name);
                                         }
 
                                         ad.GetComponent<Collider>().enabled = true;
@@ -284,13 +301,14 @@ namespace Msmp.Client
                             case PacketType.SpawnTrafficNpc:
                                 {
                                     OutSpawnTrafficNpcPacket spawnTrafficNpcPacket = Packet.Deserialize<OutSpawnTrafficNpcPacket>(buffer);
-                                    NpcTrafficManagerPatch.SpawnNpc(spawnTrafficNpcPacket);
+                                    NpcTrafficManagerPatch.SpawnTraffic(spawnTrafficNpcPacket);
                                 }
                                 break;
                             case PacketType.TrafficNpcSetDestination:
                                 {
                                     OutTrafficNpcSetDestinationPacket outTrafficNpcSetDestinationPacket 
                                         = Packet.Deserialize<OutTrafficNpcSetDestinationPacket>(buffer);
+
                                     WaypointNavigatorPatch.SetDestination(outTrafficNpcSetDestinationPacket);
                                 }
                                 break;
@@ -311,7 +329,8 @@ namespace Msmp.Client
                                 break;
                             case PacketType.SyncAll:
                                 {
-
+                                    OutSyncAllPacket outSyncAllPacket = Packet.Deserialize<OutSyncAllPacket>(buffer);
+                                    NpcTrafficManagerPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
                                 }
                                 break;
                         }
@@ -329,7 +348,7 @@ namespace Msmp.Client
 
             if(payload.GetType() != typeof(Packet))
             {
-                throw new NotImplementedException("Payload have to be string type");
+                throw new NotImplementedException($"Payload have to be {nameof(Packet)} type");
             }
 
             using (MemoryStream ms = new MemoryStream())

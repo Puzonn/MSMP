@@ -3,10 +3,10 @@ using Msmp.Server;
 using HarmonyLib;
 using System.Reflection;
 using System.Linq;
-using MSMP.Server.Packets;
+using Msmp.Server.Packets;
 using System;
 
-namespace MSMP.Patch.Shop
+namespace Msmp.Patch.Shop
 {
     [HarmonyPatch(typeof(MarketShoppingCart))]
     [HarmonyPatch("Purchase")]

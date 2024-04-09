@@ -1,4 +1,4 @@
-﻿using MSMP.Server.Models;
+﻿using Msmp.Server.Models;
 using System;
 
 namespace Msmp.Server.Packets

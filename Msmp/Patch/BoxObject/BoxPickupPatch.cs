@@ -1,13 +1,12 @@
 ﻿using System;
 using HarmonyLib;
-using MSMP.Mono;
-using MyBox;
+using Msmp.Mono;
 using UnityEngine;
 
 /*
  TODO: Before picking up check if other client is not picking the same box on server
 */
-namespace MSMP.Patch.BoxObject
+namespace Msmp.Patch.BoxObject
 {
     [HarmonyPatch(typeof(PlayerObjectHolder))]
     [HarmonyPatch("HoldObject")]

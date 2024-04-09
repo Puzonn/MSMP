@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace MSMP.Patch.Customers
+namespace Msmp.Patch.Customers
 {
     [HarmonyPatch(typeof(CustomerManager))]
     [HarmonyPatch("SpawnCustomer", new Type[] { typeof(Vector3)})]
