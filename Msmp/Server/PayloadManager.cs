@@ -156,6 +156,21 @@ namespace Msmp.Server
                                 SendPayload(new Packet(data));
                             }
                             break;
+                        case PacketType.SpawnCustomer:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.SpawnCustomerVector:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.SyncAll:
+                            {
+                                SendPayloadExclude(stream, new Packet(data));  
+                            }
+                            break;
                     }
                 }
             }

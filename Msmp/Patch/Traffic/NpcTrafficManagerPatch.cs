@@ -69,7 +69,7 @@ namespace MSMP.Patch.Traffic
 
             MsmpClient.Instance.SendPayload(packet);
 
-            Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] {PacketType.SpawnTrafficNpc} id: {outSpawnTrafficNpcPacket.NetworkId}");
+            Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] [{PacketType.SpawnTrafficNpc}] id: {outSpawnTrafficNpcPacket.NetworkId}");
 
             return false;
         }

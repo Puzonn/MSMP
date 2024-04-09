@@ -17,6 +17,7 @@ using MSMP.Server.Packets;
 using System.Collections.Generic;
 using MSMP.Patch;
 using MSMP.Patch.Traffic;
+using MSMP.Patch.Customers;
 
 namespace Msmp.Client
 {
@@ -291,6 +292,26 @@ namespace Msmp.Client
                                     OutTrafficNpcSetDestinationPacket outTrafficNpcSetDestinationPacket 
                                         = Packet.Deserialize<OutTrafficNpcSetDestinationPacket>(buffer);
                                     WaypointNavigatorPatch.SetDestination(outTrafficNpcSetDestinationPacket);
+                                }
+                                break;
+                            case PacketType.SpawnCustomer:
+                                {
+                                    OutSpawnCustomer outSpawnCustomer = Packet.Deserialize<OutSpawnCustomer>(buffer);
+
+                                    SpawnCustomerPatch.SpawnCustomer(outSpawnCustomer.PrefabIndex, outSpawnCustomer.SpawnTransformIndex);
+                                }
+                                break;
+                            case PacketType.SpawnCustomerVector:
+                                {
+                                    OutSpawnCustomerVector outSpawnCustomerVector = Packet.Deserialize<OutSpawnCustomerVector>(buffer);
+
+                                    SpawnCustomerPatch.SpawnCustomer(outSpawnCustomerVector.PrefabIndex,
+                                        outSpawnCustomerVector.SpawnTransformIndex, outSpawnCustomerVector.GetVector());
+                                }
+                                break;
+                            case PacketType.SyncAll:
+                                {
+
                                 }
                                 break;
                         }

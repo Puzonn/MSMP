@@ -17,6 +17,10 @@ namespace Msmp.Server
         ProductToDisplayEvent = 0x9,
         OpenBoxEvent = 0x10,
         SpawnTrafficNpc = 0x11,
-        TrafficNpcSetDestination = 0x12
+        TrafficNpcSetDestination = 0x12,
+        SpawnCustomer = 0x13,
+        SpawnCustomerVector = 0x14,
+        /* Acutally can be send */
+        SyncAll = 0x15
     }
 }

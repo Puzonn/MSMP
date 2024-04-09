@@ -12,7 +12,7 @@ using MSMP.Server.Packets;
 using MSMP.Patch.Traffic;
 using MSMP.Patch.BoxObject;
 using MSMP.Patch.Shop;
-using MSMP.Patch.Customer;
+using MSMP.Patch.Customers;
 
 namespace Msmp
 {
@@ -61,7 +61,8 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(OpenBoxPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerPatch));
             Harmony.CreateAndPatchAll(typeof(WaypointNavigatorPatch));
-            Harmony.CreateAndPatchAll(typeof(CustomerManagerPatch));
+            Harmony.CreateAndPatchAll(typeof(SpawnCustomerPatch));
+            Harmony.CreateAndPatchAll(typeof(SpawnCustomerVectorPatch));
         }
 
         private void Update()
