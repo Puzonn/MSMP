@@ -59,7 +59,7 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(BoxDropPatch));
             Harmony.CreateAndPatchAll(typeof(PlaceProductToDisplayPatch));
             Harmony.CreateAndPatchAll(typeof(OpenBoxPatch));
-            Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerPatch));
+            Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerSpawnPatch));
             Harmony.CreateAndPatchAll(typeof(WaypointNavigatorPatch));
             Harmony.CreateAndPatchAll(typeof(SpawnCustomerPatch));
             Harmony.CreateAndPatchAll(typeof(SpawnCustomerVectorPatch));

@@ -17,20 +17,20 @@ namespace Msmp.Patch.Traffic
 {
     [HarmonyPatch(typeof(NPCTrafficManager))]
     [HarmonyPatch("SpawnNPC")]
-    internal class NpcTrafficManagerPatch
+    internal class NpcTrafficManagerSpawnPatch
     {
         [HarmonyPrefix]
         static bool Prefix(NPCTrafficManager __instance)
         {
             if (MsmpClient.Instance == null || !MsmpClient.Instance.IsServer)
             {
-                Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] You're not server");
+                Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerSpawnPatch)}] You're not server");
                 return false;
             }
 
             if (!MsmpClient.Instance.Connected)
             {
-                Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] You're not connected to any server");
+                Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerSpawnPatch)}] You're not connected to any server");
                 return false;
             }
 
@@ -72,7 +72,7 @@ namespace Msmp.Patch.Traffic
 
             MsmpClient.Instance.SendPayload(packet);
 
-            Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerPatch)}] [{PacketType.SpawnTrafficNpc}] id: {outSpawnTrafficNpcPacket.NetworkId}");
+            Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerSpawnPatch)}] [{PacketType.SpawnTrafficNpc}] id: {outSpawnTrafficNpcPacket.NetworkId}");
 
             return false;
         }
@@ -191,8 +191,6 @@ namespace Msmp.Patch.Traffic
             {
                 SpawnTraffic(npc.Prefab, npc.Enterence, npc.Forward, npc.WaypointTravelCount,
                     npc.Speed, npc.NetworkId, npc.NextWaypointPosition.ToVector3(), npc.Position.ToVector3());
-
-                Console.WriteLine($"Spawning traffic npc {npc.NetworkId}");
             }
         }
     }

@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using Msmp.Patch;
 using Msmp.Patch.Traffic;
 using Msmp.Patch.Customers;
+using MSMP.Patch.Traffic;
 
 namespace Msmp.Client
 {
@@ -299,7 +300,7 @@ namespace Msmp.Client
                             case PacketType.SpawnTrafficNpc:
                                 {
                                     OutSpawnTrafficNpcPacket spawnTrafficNpcPacket = Packet.Deserialize<OutSpawnTrafficNpcPacket>(buffer);
-                                    NpcTrafficManagerPatch.SpawnTraffic(spawnTrafficNpcPacket);
+                                    NpcTrafficManagerSpawnPatch.SpawnTraffic(spawnTrafficNpcPacket);
                                 }
                                 break;
                             case PacketType.TrafficNpcSetDestination:
@@ -327,9 +328,14 @@ namespace Msmp.Client
                                 break;
                             case PacketType.SyncAll:
                                 {
-                                    Console.WriteLine("Syncing");
                                     OutSyncAllPacket outSyncAllPacket = Packet.Deserialize<OutSyncAllPacket>(buffer);
-                                     NpcTrafficManagerPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
+                                     NpcTrafficManagerSpawnPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
+                                }
+                                break;
+                            case PacketType.DespawnTraffic:
+                                {
+                                    Guid guid = new Guid(buffer.Skip(1).Take(16).ToArray());
+                                    NpcTrafficManagerDespawnPatch.RemoveTrafficNPC(guid);
                                 }
                                 break;
                         }

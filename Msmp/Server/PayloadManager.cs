@@ -169,6 +169,11 @@ namespace Msmp.Server
                                 SendPayloadExclude(stream, new Packet(data));  
                             }
                             break;
+                        case PacketType.DespawnTraffic:
+                            {
+                                SendPayload(new Packet(data));
+                            }
+                            break;
                     }
                 }
             }

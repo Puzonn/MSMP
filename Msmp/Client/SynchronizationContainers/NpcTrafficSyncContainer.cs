@@ -65,9 +65,10 @@ namespace Msmp.Client.SynchronizationContainers
             if(syncNpc == null)
             {
                 _logger.LogWarning($"[Client] [{nameof(NpcTrafficSyncContainer)}] Tried remove traffic npc {networkId} that doesnt exist");
-
                 return;
             }
+
+            _logger.LogInfo($"[Client] [{nameof(NpcTrafficSyncContainer)}] Despawning {networkId}");
 
             SyncTrafficNPCs.Remove(syncNpc);
         }
@@ -75,7 +76,6 @@ namespace Msmp.Client.SynchronizationContainers
         public class SyncTrafficNPC
         {
             public WaypointNavigator Navigator;
-
             public Guid NetworkId { get; set; }
 
             public int Prefab { get; set; }
