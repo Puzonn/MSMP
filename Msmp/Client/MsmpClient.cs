@@ -77,7 +77,7 @@ namespace Msmp.Client
 
             while (true)
             {
-                byte[] buffer = new byte[1024 * 24];
+                byte[] buffer = new byte[1024 * 5];
 
                 int bytesRead = _stream.Read(buffer, 0, buffer.Length);
 
@@ -86,8 +86,6 @@ namespace Msmp.Client
                     UnityDispatcher.UnitySyncContext.Post(_ =>
                     {
                         PacketType packetType = (PacketType)buffer[0];
-
-                        _logger.LogInfo($"[Client] [{packetType}] length: {bytesRead}");
 
                         switch (packetType)
                         {
@@ -329,13 +327,15 @@ namespace Msmp.Client
                                 break;
                             case PacketType.SyncAll:
                                 {
+                                    Console.WriteLine("Syncing");
                                     OutSyncAllPacket outSyncAllPacket = Packet.Deserialize<OutSyncAllPacket>(buffer);
-                                    NpcTrafficManagerPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
+                                     NpcTrafficManagerPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
                                 }
                                 break;
                         }
                     }, null);
                 }
+                _stream.Flush();
             }
         }
 

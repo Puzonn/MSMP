@@ -24,6 +24,8 @@ namespace Msmp.Patch.Customers
                 return false;
             }
 
+            return false;
+
             Console.WriteLine($"[Client] [{nameof(SpawnCustomerPatch)}] Spawning customer without vector data");
 
             CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;    

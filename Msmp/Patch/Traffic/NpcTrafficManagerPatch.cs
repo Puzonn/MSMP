@@ -12,7 +12,6 @@ using Msmp.Server;
 using Msmp.Client;
 using Msmp.Client.SynchronizationContainers;
 using Msmp.Server.Models.Sync;
-using System.Runtime.InteropServices;
 
 namespace Msmp.Patch.Traffic
 {
@@ -168,6 +167,8 @@ namespace Msmp.Patch.Traffic
                 });
             }
 
+            waypointNavigator.transform.position = position;
+
             return waypointNavigator;
         }
 
@@ -183,13 +184,15 @@ namespace Msmp.Patch.Traffic
 
             foreach (var trafficNpc in m_ActiveNPCs)
             {
-                UnityEngine.Object.Destroy(trafficNpc);
+                LeanPool.Despawn(trafficNpc);
             }
 
             foreach(var npc in packet)
             {
                 SpawnTraffic(npc.Prefab, npc.Enterence, npc.Forward, npc.WaypointTravelCount,
                     npc.Speed, npc.NetworkId, npc.NextWaypointPosition.ToVector3(), npc.Position.ToVector3());
+
+                Console.WriteLine($"Spawning traffic npc {npc.NetworkId}");
             }
         }
     }
