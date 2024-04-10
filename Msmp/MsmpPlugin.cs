@@ -13,6 +13,8 @@ using Msmp.Patch.Traffic;
 using Msmp.Patch.BoxObject;
 using Msmp.Patch.Customers;
 using System;
+using MSMP.Patch.Traffic;
+using System.Runtime.Remoting.Messaging;
 
 namespace Msmp
 {
@@ -63,6 +65,7 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(WaypointNavigatorPatch));
             Harmony.CreateAndPatchAll(typeof(SpawnCustomerPatch));
             Harmony.CreateAndPatchAll(typeof(SpawnCustomerVectorPatch));
+            Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerDespawnPatch));
         }
 
         private void Update()
@@ -83,7 +86,18 @@ namespace Msmp
 
             if (UnityInput.Current.GetKeyDown(KeyCode.F1))
             {
-                Singleton<MoneyManager>.Instance.MoneyTransition(500, MoneyManager.TransitionType.BILLS);
+                var r = new OutSpawnTrafficNpcPacket()
+                {
+                    Enterence = 0,
+                    Forward = true,
+                    NetworkId = new Guid(),
+                    Prefab = 0,
+                    Speed = 0,
+                    WaypointTravelCount = 1
+                };
+                NpcTrafficManagerSpawnPatch.SpawnTraffic(r);
+
+                NpcTrafficManagerDespawnPatch.RemoveTrafficNPC(r.NetworkId);
             }
 
             if (UnityInput.Current.GetKeyDown(KeyCode.F2))

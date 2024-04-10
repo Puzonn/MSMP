@@ -1,9 +1,12 @@
 ﻿using HarmonyLib;
+using Lean.Pool;
 using Msmp.Client;
 using Msmp.Mono;
 using Msmp.Server;
 using MyBox;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace MSMP.Patch.Traffic
 {
@@ -12,7 +15,7 @@ namespace MSMP.Patch.Traffic
     internal class NpcTrafficManagerDespawnPatch
     {
         [HarmonyPrefix]
-        public bool Prefix(WaypointNavigator npc)
+        static bool Prefix(WaypointNavigator npc)
         {
             MsmpClient client = MsmpClient.Instance;
 
@@ -22,8 +25,6 @@ namespace MSMP.Patch.Traffic
             }
 
             Guid networkId = npc.GetComponent<NetworkedTrafficNPC>().NetworkId;
-
-            Console.WriteLine($"[Client] [{nameof(PacketType.DespawnTraffic)}] Despawning {networkId}");
 
             Packet packet = new Packet(PacketType.DespawnTraffic, networkId.ToByteArray());
 
@@ -36,14 +37,21 @@ namespace MSMP.Patch.Traffic
         {
             MsmpClient client = MsmpClient.Instance;
 
-            client.SyncContext.NpcTrafficContainer
-                .Remove(networkId);
+            if (client.SyncContext.NpcTrafficContainer.Remove(networkId))
+            {
+                var traffic = Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedTrafficNPC>(), x => x.NetworkId == networkId);
 
-            var traffic = Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedTrafficNPC>(), x => x.NetworkId == networkId);
+                var manager = Singleton<NPCTrafficManager>.Instance;
+                var navigator = traffic.GetComponent<WaypointNavigator>();
 
-            var navigator = traffic.GetComponent<WaypointNavigator>();
+                LeanPool.Despawn(navigator);
 
-            Singleton<NPCTrafficManager>.Instance.RemoveNPC(navigator);
+                List<WaypointNavigator> m_ActiveNPCs = (List<WaypointNavigator>)manager.GetType()
+                    .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetValue(manager);
+
+                m_ActiveNPCs.Remove(navigator);
+            }
         }
     }
 }

@@ -58,19 +58,18 @@ namespace Msmp.Client.SynchronizationContainers
             return updated;
         }
 
-        public void Remove(Guid networkId)
+        public bool Remove(Guid networkId)
         {
             SyncTrafficNPC syncNpc = SyncTrafficNPCs.Find(x => x.NetworkId == networkId);   
 
             if(syncNpc == null)
             {
                 _logger.LogWarning($"[Client] [{nameof(NpcTrafficSyncContainer)}] Tried remove traffic npc {networkId} that doesnt exist");
-                return;
+
+                return false;
             }
 
-            _logger.LogInfo($"[Client] [{nameof(NpcTrafficSyncContainer)}] Despawning {networkId}");
-
-            SyncTrafficNPCs.Remove(syncNpc);
+            return SyncTrafficNPCs.Remove(syncNpc);
         }
 
         public class SyncTrafficNPC
