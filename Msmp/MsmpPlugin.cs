@@ -10,11 +10,12 @@ using Msmp.Client.Controllers;
 using HarmonyLib;
 using Msmp.Server.Packets;
 using Msmp.Patch.Traffic;
-using Msmp.Patch.BoxObject;
-using Msmp.Patch.Customers;
+using Msmp.Patch.BoxPatch;
+using Msmp.Patch.CustomerPatch;
 using System;
 using MSMP.Patch.Traffic;
 using System.Runtime.Remoting.Messaging;
+using MSMP.Patch.CustomerPatch;
 
 namespace Msmp
 {
@@ -66,6 +67,7 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(CustomerManagerSpawnPatch));
             Harmony.CreateAndPatchAll(typeof(CustomermanagerSpawnVectorPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerDespawnPatch));
+            Harmony.CreateAndPatchAll(typeof(CustomerTakeProductPatch));
         }
 
         private void Update()

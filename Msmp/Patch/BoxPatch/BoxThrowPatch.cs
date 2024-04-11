@@ -3,7 +3,7 @@ using Msmp.Mono;
 using System.Reflection;
 using UnityEngine;
 
-namespace Msmp.Patch.BoxObject
+namespace Msmp.Patch.BoxPatch
 {
     [HarmonyPatch(typeof(PlayerObjectHolder))]
     [HarmonyPatch("ThrowObject")]

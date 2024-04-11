@@ -22,6 +22,8 @@ namespace Msmp.Server
         SpawnCustomerVector = 0x14,
         /* Acutally can be send */
         SyncAll = 0x15,
-        DespawnTraffic = 0x16
+        DespawnTraffic = 0x16,
+
+        CustomerTakeProduct = 0x17
     }
 }

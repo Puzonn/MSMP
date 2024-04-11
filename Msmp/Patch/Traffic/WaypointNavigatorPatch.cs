@@ -20,7 +20,6 @@ namespace Msmp.Patch.Traffic
         {
             if (MsmpClient.Instance == null || !MsmpClient.Instance.IsServer)
             {
-                Console.WriteLine($"[Client] [{nameof(WaypointNavigatorPatch)}] You're not server");
                 return;
             }
 

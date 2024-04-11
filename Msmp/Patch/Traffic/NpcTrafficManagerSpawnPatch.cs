@@ -23,6 +23,7 @@ namespace Msmp.Patch.Traffic
         [HarmonyPrefix]
         static bool Prefix(NPCTrafficManager __instance)
         {
+            return false; 
             if (MsmpClient.Instance == null || !MsmpClient.Instance.IsServer)
             {
                 Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerSpawnPatch)}] You're not server");
@@ -73,16 +74,12 @@ namespace Msmp.Patch.Traffic
 
             MsmpClient.Instance.SendPayload(packet);
 
-            Console.WriteLine($"[Client] [{nameof(NpcTrafficManagerSpawnPatch)}] [{PacketType.SpawnTrafficNpc}] id: {outSpawnTrafficNpcPacket.NetworkId}");
-
             return false;
         }
 
         public static void SpawnTraffic(OutSpawnTrafficNpcPacket packet)
         {
             SpawnTraffic(packet.Prefab, packet.Enterence, packet.Forward, packet.WaypointTravelCount,packet.Speed, packet.NetworkId);
-
-            Console.WriteLine($"[Client] {PacketType.SpawnTrafficNpc} spawned id: {packet.NetworkId}");
         }
 
         public static WaypointNavigator SpawnTraffic(int prefab, int enterance,

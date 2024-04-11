@@ -13,11 +13,9 @@ using Msmp.Server.Packets;
 using Msmp.Mono;
 using System.Reflection;
 using System.Collections.Generic;
-using Msmp.Patch;
 using Msmp.Patch.Traffic;
-using Msmp.Patch.Customers;
+using Msmp.Patch.CustomerPatch;
 using MSMP.Patch.Traffic;
-using Lean.Pool;
 
 namespace Msmp.Client
 {
@@ -166,7 +164,7 @@ namespace Msmp.Client
                                         _logger.LogInfo($"Added {client.ClientId} as unity GameObject");
                                     }
 
-                                    _logger.LogInfo($"[Client] {nameof(PacketType.OnConnection)} You're connected as {conn.NetworkId}");
+                                    _logger.LogInfo($"[Client] [{nameof(PacketType.OnConnection)}] You're connected as {conn.NetworkId}");
                                 }
                                 break;
                             case PacketType.PlayerMovement:

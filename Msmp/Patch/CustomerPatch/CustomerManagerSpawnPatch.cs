@@ -13,7 +13,7 @@ using Msmp.Client.SynchronizationContainers;
 using Msmp.Mono;
 using Msmp.Server.Models.Sync;
 
-namespace Msmp.Patch.Customers
+namespace Msmp.Patch.CustomerPatch  
 {
     [HarmonyPatch(typeof(CustomerManager))]
     [HarmonyPatch("SpawnCustomer", new Type[] {})]

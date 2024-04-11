@@ -4,7 +4,7 @@ using Msmp.Server;
 using Msmp.Mono;
 using Msmp.Server.Packets;
 
-namespace Msmp.Patch.BoxObject
+namespace Msmp.Patch.BoxPatch
 {
     [HarmonyPatch(typeof(Box))]
     [HarmonyPatch("OpenBox")]
