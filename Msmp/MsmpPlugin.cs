@@ -63,8 +63,8 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(OpenBoxPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerSpawnPatch));
             Harmony.CreateAndPatchAll(typeof(WaypointNavigatorPatch));
-            Harmony.CreateAndPatchAll(typeof(SpawnCustomerPatch));
-            Harmony.CreateAndPatchAll(typeof(SpawnCustomerVectorPatch));
+            Harmony.CreateAndPatchAll(typeof(CustomerManagerSpawnPatch));
+            Harmony.CreateAndPatchAll(typeof(CustomermanagerSpawnVectorPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerDespawnPatch));
         }
 

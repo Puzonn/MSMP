@@ -9,5 +9,6 @@ namespace Msmp.Server.Packets
     {
         public float Money { get; set; }    
         public List<SyncTrafficNPCModel> TrafficNPCs { get; set; }
+        public List<SyncCustomerModel> Customer { get; set; }
     }
 }

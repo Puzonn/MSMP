@@ -9,12 +9,15 @@ using Random = UnityEngine.Random;
 using Msmp.Server.Packets;
 using Msmp.Server;
 using Msmp.Client;
+using Msmp.Client.SynchronizationContainers;
+using Msmp.Mono;
+using Msmp.Server.Models.Sync;
 
 namespace Msmp.Patch.Customers
 {
     [HarmonyPatch(typeof(CustomerManager))]
     [HarmonyPatch("SpawnCustomer", new Type[] {})]
-    internal class SpawnCustomerPatch
+    internal class CustomerManagerSpawnPatch
     {
         [HarmonyPrefix]
         static bool Prefix()
@@ -24,9 +27,7 @@ namespace Msmp.Patch.Customers
                 return false;
             }
 
-            return false;
-
-            Console.WriteLine($"[Client] [{nameof(SpawnCustomerPatch)}] Spawning customer without vector data");
+            Console.WriteLine($"[Client] [{nameof(CustomerManagerSpawnPatch)}] Spawning customer without vector data");
 
             CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;    
 
@@ -41,6 +42,7 @@ namespace Msmp.Patch.Customers
             {
                 PrefabIndex = prefab,
                 SpawnTransformIndex = spawnTransform,
+                NetworkId = Guid.NewGuid()
             };
 
             Packet packet = new Packet(PacketType.SpawnCustomer, outSpawnCustomer);
@@ -50,7 +52,7 @@ namespace Msmp.Patch.Customers
             return false;
         }
 
-        public static Customer SpawnCustomer(int prefabIndex, int transformIndex, Vector3 position = default)
+        public static Customer SpawnCustomer(Guid networkId, int prefabIndex, int transformIndex, Vector3 position = default)
         {
             Console.WriteLine($"[Client] [{PacketType.SpawnCustomer}] Spawning customer p: {prefabIndex} t: {transformIndex}");
 
@@ -83,13 +85,35 @@ namespace Msmp.Patch.Customers
                 spawnPosition = position;
             }
 
-            Customer customer =  LeanPool.Spawn(m_CustomerPrefabs[prefabIndex], spawnPosition, spawnRotation, customerGenerator.transform);
+            Customer customer = LeanPool.Spawn(m_CustomerPrefabs[prefabIndex], spawnPosition, spawnRotation, customerGenerator.transform);
+
+            customer.gameObject.AddComponent<NetworkedCustomer>().NetworkId = networkId;
 
             customer.GoToStore(m_StoreDoor.position);
 
             m_ActiveCustomers.Add(customer);
 
+            MsmpClient client = MsmpClient.Instance;
+
+            if(client.IsServer)
+            {
+                client.SyncContext.CustomerContainer.Add(new CustomerSyncContainer.SyncCustomer()
+                {
+                    CustomerReference = customer,
+                    NetworkId = networkId,
+                    Prefab = prefabIndex
+                });
+            }
+
             return customer;
+        }
+
+        public static void SyncCustomers(List<SyncCustomerModel> customers)
+        {
+            foreach(SyncCustomerModel customer in customers)
+            {
+                SpawnCustomer(customer.NetworkId, customer.PrefabIndex, customer.SpawnTransformIndex, customer.Position.ToVector3());
+            }
         }
     }
 }

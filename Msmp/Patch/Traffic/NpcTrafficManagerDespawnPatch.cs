@@ -3,10 +3,12 @@ using Lean.Pool;
 using Msmp.Client;
 using Msmp.Mono;
 using Msmp.Server;
+using Msmp.Server.Models.Sync;
 using MyBox;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using static Msmp.Client.SynchronizationContainers.NpcTrafficSyncContainer;
 
 namespace MSMP.Patch.Traffic
 {
@@ -37,21 +39,24 @@ namespace MSMP.Patch.Traffic
         {
             MsmpClient client = MsmpClient.Instance;
 
-            if (client.SyncContext.NpcTrafficContainer.Remove(networkId))
+            SyncTrafficNPC npc = client.SyncContext.NpcTrafficContainer.Get().Find(x => x.NetworkId == networkId);
+
+            if(npc == null)
             {
-                var traffic = Array.Find(UnityEngine.Object.FindObjectsOfType<NetworkedTrafficNPC>(), x => x.NetworkId == networkId);
-
-                var manager = Singleton<NPCTrafficManager>.Instance;
-                var navigator = traffic.GetComponent<WaypointNavigator>();
-
-                LeanPool.Despawn(navigator);
-
-                List<WaypointNavigator> m_ActiveNPCs = (List<WaypointNavigator>)manager.GetType()
-                    .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(manager);
-
-                m_ActiveNPCs.Remove(navigator);
+                return;
             }
+
+            LeanPool.Despawn(npc.Navigator, 0f);
+
+            var manager = Singleton<NPCTrafficManager>.Instance;
+
+            List<WaypointNavigator> m_ActiveNPCs = (List<WaypointNavigator>)manager.GetType()
+                .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(manager);
+
+            m_ActiveNPCs.Remove(npc.Navigator);
+
+            client.SyncContext.NpcTrafficContainer.Remove(networkId);
         }
     }
 }

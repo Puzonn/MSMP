@@ -25,7 +25,24 @@ namespace Msmp.Client.SynchronizationContainers
             SyncTrafficNPCs.Add(npc);
         }
 
-        public List<SyncTrafficNPCModel> Get()
+        public bool Remove(Guid networkId)
+        {
+            SyncTrafficNPC syncNpc = SyncTrafficNPCs.Find(x => x.NetworkId == networkId);
+
+            if (syncNpc == null)
+            {
+                _logger.LogWarning($"[Client] [{nameof(NpcTrafficSyncContainer)}] Tried remove traffic npc {networkId} that doesnt exist");
+
+                return false;
+            }
+
+            return SyncTrafficNPCs.Remove(syncNpc);
+        }
+
+        public List<SyncTrafficNPC> Get()
+            => SyncTrafficNPCs;
+
+        public List<SyncTrafficNPCModel> GetModels()
         {
             List<SyncTrafficNPCModel> updated = new List<SyncTrafficNPCModel>();
 
@@ -56,20 +73,6 @@ namespace Msmp.Client.SynchronizationContainers
             }
 
             return updated;
-        }
-
-        public bool Remove(Guid networkId)
-        {
-            SyncTrafficNPC syncNpc = SyncTrafficNPCs.Find(x => x.NetworkId == networkId);   
-
-            if(syncNpc == null)
-            {
-                _logger.LogWarning($"[Client] [{nameof(NpcTrafficSyncContainer)}] Tried remove traffic npc {networkId} that doesnt exist");
-
-                return false;
-            }
-
-            return SyncTrafficNPCs.Remove(syncNpc);
         }
 
         public class SyncTrafficNPC

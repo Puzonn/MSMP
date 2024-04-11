@@ -17,6 +17,7 @@ using Msmp.Patch;
 using Msmp.Patch.Traffic;
 using Msmp.Patch.Customers;
 using MSMP.Patch.Traffic;
+using Lean.Pool;
 
 namespace Msmp.Client
 {
@@ -100,6 +101,7 @@ namespace Msmp.Client
                                         {
                                             Money = 0,
                                             TrafficNPCs = SyncContext.GetSyncTrafficNPCs(),
+                                            Customer = SyncContext.GetSyncCustomers(),
                                         };
 
                                         Console.WriteLine($"[Client] [{nameof(PacketType.OnConnection)}] SyncTraffic c:{outSyncAllPacket.TrafficNPCs.Count}");
@@ -315,21 +317,22 @@ namespace Msmp.Client
                                 {
                                     OutSpawnCustomer outSpawnCustomer = Packet.Deserialize<OutSpawnCustomer>(buffer);
 
-                                    SpawnCustomerPatch.SpawnCustomer(outSpawnCustomer.PrefabIndex, outSpawnCustomer.SpawnTransformIndex);
+                                    CustomerManagerSpawnPatch.SpawnCustomer(outSpawnCustomer.NetworkId, outSpawnCustomer.PrefabIndex, outSpawnCustomer.SpawnTransformIndex);
                                 }
                                 break;
                             case PacketType.SpawnCustomerVector:
                                 {
                                     OutSpawnCustomerVector outSpawnCustomerVector = Packet.Deserialize<OutSpawnCustomerVector>(buffer);
 
-                                    SpawnCustomerPatch.SpawnCustomer(outSpawnCustomerVector.PrefabIndex,
+                                    CustomerManagerSpawnPatch.SpawnCustomer(outSpawnCustomerVector.NetworkId, outSpawnCustomerVector.PrefabIndex,
                                         outSpawnCustomerVector.SpawnTransformIndex, outSpawnCustomerVector.GetVector());
                                 }
                                 break;
                             case PacketType.SyncAll:
                                 {
                                     OutSyncAllPacket outSyncAllPacket = Packet.Deserialize<OutSyncAllPacket>(buffer);
-                                     NpcTrafficManagerSpawnPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
+                                    NpcTrafficManagerSpawnPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
+                                    CustomerManagerSpawnPatch.SyncCustomers(outSyncAllPacket.Customer);
                                 }
                                 break;
                             case PacketType.DespawnTraffic:

@@ -12,6 +12,7 @@ using Msmp.Server;
 using Msmp.Client;
 using Msmp.Client.SynchronizationContainers;
 using Msmp.Server.Models.Sync;
+using System.Linq;
 
 namespace Msmp.Patch.Traffic
 {
@@ -110,18 +111,15 @@ namespace Msmp.Patch.Traffic
 
             m_ActiveNPCs.Add(waypointNavigator);
 
-            if (MsmpClient.Instance.IsServer)
+            MsmpClient.Instance.SyncContext.NpcTrafficContainer.Add(new NpcTrafficSyncContainer.SyncTrafficNPC()
             {
-                MsmpClient.Instance.SyncContext.NpcTrafficContainer.Add(new NpcTrafficSyncContainer.SyncTrafficNPC()
-                {
-                    Enterence = enterance,
-                    Forward = forward,
-                    NetworkId = networkId,
-                    Prefab = prefab,
-                    Speed = speed,
-                    Navigator = waypointNavigator
-                });
-            }
+                Enterence = enterance,
+                Forward = forward,
+                NetworkId = networkId,
+                Prefab = prefab,
+                Speed = speed,
+                Navigator = waypointNavigator
+            });
 
             return waypointNavigator;
         }
@@ -154,18 +152,15 @@ namespace Msmp.Patch.Traffic
 
             m_ActiveNPCs.Add(waypointNavigator);
 
-            if (MsmpClient.Instance.IsServer)
+            MsmpClient.Instance.SyncContext.NpcTrafficContainer.Add(new NpcTrafficSyncContainer.SyncTrafficNPC()
             {
-                MsmpClient.Instance.SyncContext.NpcTrafficContainer.Add(new NpcTrafficSyncContainer.SyncTrafficNPC()
-                {
-                    Enterence = enterance,
-                    Forward = forward,
-                    NetworkId = networkId,
-                    Prefab = prefab,
-                    Speed = speed,
-                    Navigator = waypointNavigator
-                });
-            }
+                Enterence = enterance,
+                Forward = forward,
+                NetworkId = networkId,
+                Prefab = prefab,
+                Speed = speed,
+                Navigator = waypointNavigator
+            });
 
             waypointNavigator.transform.position = position;
 
@@ -180,11 +175,10 @@ namespace Msmp.Patch.Traffic
                 .GetField("m_ActiveNPCs", BindingFlags.NonPublic | BindingFlags.Instance)  
                 .GetValue(manager);
 
-            Console.WriteLine($"[Client] [{nameof(PacketType.SyncAll)}] Despawning all current traffic");
-
-            foreach (var trafficNpc in m_ActiveNPCs)
+            foreach (var trafficNpc in m_ActiveNPCs.ToList())
             {
                 LeanPool.Despawn(trafficNpc);
+                m_ActiveNPCs.Remove(trafficNpc);
             }
 
             foreach(var npc in packet)
