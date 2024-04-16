@@ -39,7 +39,7 @@ namespace Msmp.Server
         {
             while (true)
             {
-                byte[] data = new byte[1024 * 5];
+                byte[] data = new byte[1024 * 50];
 
                 if (stream.Read(data, 0, data.Length) > 0)
                 {
@@ -166,12 +166,17 @@ namespace Msmp.Server
                             break;
                         case PacketType.SyncAll:
                             {
-                                SendPayloadExclude(stream, new Packet(data));  
+                                SendPayload(new Packet(data));  
                             }
                             break;
                         case PacketType.DespawnTraffic:
                             {
                                 SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.CustomerTakeProduct:
+                            {
+                                SendPayloadExclude(stream, new Packet(data));
                             }
                             break;
                     }

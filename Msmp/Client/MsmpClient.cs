@@ -11,11 +11,12 @@ using Msmp.Client.Controllers;
 using UnityEngine.AI;
 using Msmp.Server.Packets;
 using Msmp.Mono;
-using System.Reflection;
-using System.Collections.Generic;
 using Msmp.Patch.Traffic;
 using Msmp.Patch.CustomerPatch;
 using MSMP.Patch.Traffic;
+using Msmp.Patch.Shop;
+using Msmp.Client.SynchronizationContainers;
+using Msmp.Patch.BoxPatch;
 
 namespace Msmp.Client
 {
@@ -37,7 +38,7 @@ namespace Msmp.Client
         public bool Connected => _client.Connected;
         
         private readonly TcpClient _client;
-        private readonly ClientManager _clientManager;
+        public readonly ClientManager _clientManager;
 
         public Guid LocalClientNetworkId { get; private set; }
 
@@ -77,7 +78,7 @@ namespace Msmp.Client
 
             while (true)
             {
-                byte[] buffer = new byte[1024 * 5];
+                byte[] buffer = new byte[1024 * 50];
 
                 int bytesRead = _stream.Read(buffer, 0, buffer.Length);
 
@@ -93,6 +94,8 @@ namespace Msmp.Client
                                 {
                                     if(IsServer)
                                     {
+                                        SyncContext.DisplayContainer.InitializeDisplays();
+
                                         Console.WriteLine($"[Client] [{nameof(PacketType.OnConnection)}] New client connected. Syncing all clients");
 
                                         OutSyncAllPacket outSyncAllPacket = new OutSyncAllPacket()
@@ -100,9 +103,9 @@ namespace Msmp.Client
                                             Money = 0,
                                             TrafficNPCs = SyncContext.GetSyncTrafficNPCs(),
                                             Customer = SyncContext.GetSyncCustomers(),
+                                            Displays = SyncContext.GetSyncDisplays(),
+                                            Boxes = SyncContext.GetSyncBoxes(),
                                         };
-
-                                        Console.WriteLine($"[Client] [{nameof(PacketType.OnConnection)}] SyncTraffic c:{outSyncAllPacket.TrafficNPCs.Count}");
 
                                         Packet packet = new Packet(PacketType.SyncAll, outSyncAllPacket);
 
@@ -207,7 +210,13 @@ namespace Msmp.Client
 
                                         box.Setup(product.ItemId, true);
 
-                                        box.GetOrAddComponent<NetworkedBox>().NetworkId = product.NetworkItemId;
+                                        NetworkedBox networkedBox = box.gameObject.AddComponent<NetworkedBox>();
+                                        networkedBox.NetworkId = product.NetworkItemId;
+
+                                        SyncContext.BoxContainer.AddBox(new SyncBoxConstainer.SyncBox()
+                                        {
+                                            BoxReference = networkedBox,
+                                        });
 
                                         _clientManager.AddBox(product.NetworkItemId, box);
                                     }
@@ -219,7 +228,13 @@ namespace Msmp.Client
 
                                         box.Setup(furniture.ItemId, true);
 
-                                        box.GetOrAddComponent<NetworkedBox>().NetworkId = furniture.NetworkItemId;
+                                        NetworkedBox networkedBox = box.gameObject.AddComponent<NetworkedBox>();
+                                        networkedBox.NetworkId = furniture.NetworkItemId;
+
+                                        SyncContext.BoxContainer.AddBox(new SyncBoxConstainer.SyncBox()
+                                        {
+                                            BoxReference = networkedBox,
+                                        });
 
                                         _clientManager.AddBox(furniture.NetworkItemId, box);
                                     }
@@ -228,7 +243,7 @@ namespace Msmp.Client
                             case PacketType.BoxPickupEvent:
                                 {
                                     /* TODO: Cache all boxes */
-                                    BoxPickedupPacket boxPickedupPacket = Packet.Deserialize<BoxPickedupPacket>(buffer);
+                                    OutBoxPickedupPacket boxPickedupPacket = Packet.Deserialize<OutBoxPickedupPacket>(buffer);
 
                                     _clientManager.GetBox(boxPickedupPacket.BoxNetworkId).GetComponent<NetworkedBox>()
                                    .SetPickedUp(boxPickedupPacket.BoxOwner);
@@ -245,42 +260,7 @@ namespace Msmp.Client
                             case PacketType.ProductToDisplayEvent:
                                 {
                                     OutProductToDisplayPacket outProductToDisplayPacket = Packet.Deserialize<OutProductToDisplayPacket>(buffer);
-                                    Box box = _clientManager.GetBox(outProductToDisplayPacket.BoxNetworkId);
-
-                                    Product product = box.GetProductFromBox();
-
-                                    List<Display> displays = (List<Display>)(Singleton<DisplayManager>.Instance.GetType()
-                                        .GetField("m_Displays", BindingFlags.NonPublic | BindingFlags.Instance)
-                                        .GetValue(Singleton<DisplayManager>.Instance));
-
-                                    if(displays == null) 
-                                    {
-                                        _logger.LogError($"[Client] {nameof(displays)} was null at {PacketType.ProductToDisplayEvent}");
-
-                                        return;
-                                    }
-
-                                    DisplaySlot[] slots = (DisplaySlot[])displays[0].GetType()
-                                     .GetField("m_DisplaySlots", BindingFlags.NonPublic | BindingFlags.Instance)
-                                     .GetValue(displays[outProductToDisplayPacket.DisplayId]);
-
-                                    if (slots == null)
-                                    {
-                                        _logger.LogError($"[Client] {nameof(slots)} was null at {PacketType.ProductToDisplayEvent}");
-                                        return;
-                                    }
-
-                                    slots[outProductToDisplayPacket.DisplaySlotId].AddProduct(outProductToDisplayPacket.ProductId, product);
-                                    Singleton<InventoryManager>.Instance.AddProductToDisplay(new ItemQuantity
-                                    {
-                                        Products = new Dictionary<int, int>
-                                        {
-                                            {
-                                                 outProductToDisplayPacket.ProductId,
-                                                 1
-                                            }
-                                        }
-                                    });
+                                    PlaceProductToDisplayPatch.AddProductToDisplay(outProductToDisplayPacket);  
                                 }
                                 break;
                             case PacketType.OpenBoxEvent:
@@ -290,10 +270,12 @@ namespace Msmp.Client
                                     if(outOpenBoxPacket.State)
                                     {
                                         _clientManager.GetBox(outOpenBoxPacket.BoxNetworkId).OpenBox();
+                                        SyncContext.BoxContainer.SetSpawned(outOpenBoxPacket.BoxNetworkId);
                                     }
                                     else
                                     {
                                         _clientManager.GetBox(outOpenBoxPacket.BoxNetworkId).CloseBox();
+                                        SyncContext.BoxContainer.SetSpawned(outOpenBoxPacket.BoxNetworkId);
                                     }
                                 }
                                 break;
@@ -331,6 +313,8 @@ namespace Msmp.Client
                                     OutSyncAllPacket outSyncAllPacket = Packet.Deserialize<OutSyncAllPacket>(buffer);
                                     NpcTrafficManagerSpawnPatch.SyncTraffic(outSyncAllPacket.TrafficNPCs);
                                     CustomerManagerSpawnPatch.SyncCustomers(outSyncAllPacket.Customer);
+                                    PlaceProductToDisplayPatch.AddProductToDisplay(outSyncAllPacket.Displays);
+                                    SpawnBoxPatch.SpawnBox(outSyncAllPacket.Boxes);
                                 }
                                 break;
                             case PacketType.DespawnTraffic:

@@ -95,15 +95,12 @@ namespace Msmp.Patch.CustomerPatch
 
             MsmpClient client = MsmpClient.Instance;
 
-            if(client.IsServer)
+            client.SyncContext.CustomerContainer.Add(new CustomerSyncContainer.SyncCustomer()
             {
-                client.SyncContext.CustomerContainer.Add(new CustomerSyncContainer.SyncCustomer()
-                {
-                    CustomerReference = customer,
-                    NetworkId = networkId,
-                    Prefab = prefabIndex
-                });
-            }
+                CustomerReference = customer,
+                NetworkId = networkId,
+                Prefab = prefabIndex
+            });
 
             return customer;
         }

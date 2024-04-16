@@ -12,6 +12,8 @@ namespace Msmp.Client
 
         public readonly NpcTrafficSyncContainer NpcTrafficContainer;
         public readonly CustomerSyncContainer CustomerContainer;
+        public readonly SyncDisplayContainer DisplayContainer;
+        public readonly SyncBoxConstainer BoxContainer;
 
         public MsmpSynchronizationContext(ManualLogSource logger, MsmpClient client) 
         {
@@ -20,6 +22,8 @@ namespace Msmp.Client
 
             NpcTrafficContainer = new NpcTrafficSyncContainer(logger);
             CustomerContainer = new CustomerSyncContainer(logger);
+            DisplayContainer = new SyncDisplayContainer(logger);
+            BoxContainer = new SyncBoxConstainer(logger);
         }
 
         public List<SyncTrafficNPCModel> GetSyncTrafficNPCs()
@@ -29,7 +33,17 @@ namespace Msmp.Client
 
         public List<SyncCustomerModel> GetSyncCustomers()
         {
-            return CustomerContainer.Get(); 
+            return CustomerContainer.GetModels(); 
+        }
+
+        public List<SyncDisplayContainer.DisplaySyncModel> GetSyncDisplays()
+        {
+            return DisplayContainer.GetModels();
+        }
+
+        public List<SyncBoxModel> GetSyncBoxes()
+        {
+            return BoxContainer.GetModels();
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace Msmp.Server.Packets
 {
     [Serializable]
-    internal class BoxPickedupPacket
+    internal class OutBoxPickedupPacket
     {
         public Guid BoxOwner { get; set; }
         public Guid BoxNetworkId { get; set; }  

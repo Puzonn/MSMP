@@ -35,7 +35,7 @@ namespace Msmp.Client.SynchronizationContainers
             return SyncCustomers.Remove(syncNpc);
         }
 
-        public List<SyncCustomerModel> Get()
+        public List<SyncCustomerModel> GetModels()
         {
             List<SyncCustomerModel> customers = new List<SyncCustomerModel>();
 

@@ -1,8 +1,6 @@
 ﻿using Msmp.Client;
-using Msmp.Mono;
 using Msmp.Server;
 using Msmp.Server.Packets;
-using MyBox;
 using System;
 using UnityEngine;
 
@@ -10,11 +8,12 @@ namespace Msmp.Mono
 {
     internal class NetworkedBox : MonoBehaviour
     {
-        public Guid NetworkId { get; set; }  
-        
-        public Guid OwnerNetworkId { get; private set; }
+        public Guid NetworkId { get; set; }
+
+        public Guid OwnerNetworkId { get; private set; } = default;
 
         public bool PickedUp { get; private set; }
+        public bool Spawned { get; set; } = false;
 
         private readonly MsmpClient _client = MsmpClient.Instance;
 
@@ -36,7 +35,7 @@ namespace Msmp.Mono
         }
 
         /// <summary>
-        /// Called on all clients when some clinet picks up a box
+        /// Called on all clients when some client picks up a box
         /// </summary>
         public void SetPickedUp(Guid owner)
         {
@@ -63,7 +62,7 @@ namespace Msmp.Mono
             PickedUp = value;
             /* TODO: @see Patch.PickupPatch */
 
-            BoxPickedupPacket boxPickedupPacket = new BoxPickedupPacket()
+            OutBoxPickedupPacket boxPickedupPacket = new OutBoxPickedupPacket()
             {
                 BoxNetworkId = this.NetworkId,
                 BoxOwner = _client.LocalClientNetworkId,
