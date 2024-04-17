@@ -3,14 +3,13 @@ using Lean.Pool;
 using Msmp.Client;
 using Msmp.Mono;
 using Msmp.Server;
-using Msmp.Server.Models.Sync;
 using MyBox;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using static Msmp.Client.SynchronizationContainers.NpcTrafficSyncContainer;
 
-namespace MSMP.Patch.Traffic
+namespace Msmp.Patch.Traffic
 {
     [HarmonyPatch(typeof(NPCTrafficManager))]
     [HarmonyPatch("RemoveNPC")]

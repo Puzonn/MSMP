@@ -35,6 +35,11 @@ namespace Msmp.Client.SynchronizationContainers
             return SyncCustomers.Remove(syncNpc);
         }
 
+        public Customer GetCustomer(Guid networkId)
+        {
+            return SyncCustomers.Find(x => x.NetworkId == networkId).CustomerReference;
+        }
+
         public List<SyncCustomerModel> GetModels()
         {
             List<SyncCustomerModel> customers = new List<SyncCustomerModel>();

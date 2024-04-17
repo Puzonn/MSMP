@@ -27,8 +27,6 @@ namespace Msmp.Patch.CustomerPatch
                 return false;
             }
 
-            Console.WriteLine($"[Client] [{nameof(CustomerManagerSpawnPatch)}] Spawning customer without vector data");
-
             CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;    
 
             List<Customer> m_CustomerPrefabs = (List<Customer>)customerGenerator.GetType()
@@ -54,7 +52,7 @@ namespace Msmp.Patch.CustomerPatch
 
         public static Customer SpawnCustomer(Guid networkId, int prefabIndex, int transformIndex, Vector3 position = default)
         {
-            Console.WriteLine($"[Client] [{PacketType.SpawnCustomer}] Spawning customer p: {prefabIndex} t: {transformIndex}");
+            Console.WriteLine($"[Client] [{PacketType.SpawnCustomer}] Spawning customer prefab: {prefabIndex} transform: {transformIndex} id: {networkId}");
 
             CustomerGenerator customerGenerator = Singleton<CustomerGenerator>.Instance;
             CustomerManager customerManager = Singleton<CustomerManager>.Instance;

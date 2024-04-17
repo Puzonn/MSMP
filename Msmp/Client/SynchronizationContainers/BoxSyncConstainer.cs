@@ -20,7 +20,6 @@ namespace Msmp.Client.SynchronizationContainers
 
         public void AddBox(SyncBox box)
         {
-            _logger.LogInfo("Box added");
             SyncBoxes.Add(box); 
         }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Msmp.Client.SynchronizationContainers;
 using System.Linq;
+using Lean.Pool;
 
 namespace Msmp.Patch.Shop
 {
@@ -98,13 +99,28 @@ namespace Msmp.Patch.Shop
 
                 foreach (var syncSlot in syncDisplay.Slots)
                 {
+                    DisplaySlot slot = displaySlots[syncSlot.DisplaySlotId];
+
+                    List<Product> m_Products = (List<Product>)slot.GetType().GetField("m_Products", BindingFlags.NonPublic | BindingFlags.Instance)
+                        .GetValue(slot);
+
+                    foreach(var product in m_Products.ToArray())
+                    {
+                        LeanPool.Despawn(product);
+                    }
+
+                    slot.Data = new ItemQuantity();
+
                     if (syncSlot.ProductId == 0 || syncSlot.ProductCount == 0)
                     {
                         continue;
                     }
 
-                    Console.WriteLine($"Spawning {syncSlot.ProductId} {syncSlot.ProductCount}");
-                    displaySlots[syncSlot.DisplaySlotId].SpawnProduct(syncSlot.ProductId, syncSlot.ProductCount);
+                    for(int i = 0; i<syncSlot.ProductCount; i++)
+                    {
+                        displaySlots[syncSlot.DisplaySlotId].AddProduct(syncSlot.ProductId,
+                            LeanPool.Spawn(Singleton<IDManager>.Instance.ProductSO(syncSlot.ProductId).ProductPrefab, display.transform));
+                    }
                 }
             }
         }

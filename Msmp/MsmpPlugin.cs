@@ -12,8 +12,14 @@ using Msmp.Patch.Traffic;
 using Msmp.Patch.BoxPatch;
 using Msmp.Patch.CustomerPatch;
 using System;
-using MSMP.Patch.Traffic;
-using MSMP.Patch.CustomerPatch;
+using Msmp.Patch.Traffic;
+using Msmp.Patch.CustomerPatch;
+using Msmp.Server.Models;
+using MyBox;
+using System.Collections.Generic;
+using System.Linq;
+using Lean.Pool;
+using System.Reflection;
 
 namespace Msmp
 {
@@ -65,7 +71,7 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(CustomerManagerSpawnPatch));
             Harmony.CreateAndPatchAll(typeof(CustomermanagerSpawnVectorPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerDespawnPatch));
-            Harmony.CreateAndPatchAll(typeof(CustomerTakeProductPatch));
+            Harmony.CreateAndPatchAll(typeof(CustomerStartShoppingPatch));  
         }
 
         private void Update()
@@ -98,6 +104,45 @@ namespace Msmp
                 NpcTrafficManagerSpawnPatch.SpawnTraffic(r);
 
                 NpcTrafficManagerDespawnPatch.RemoveTrafficNPC(r.NetworkId);
+            }
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                Vector3 position = Singleton<PlayerController>.Instance.transform.position;
+
+                OutSpawnCustomerVector outSpawnCustomer = new OutSpawnCustomerVector()
+                {
+                    NetworkId = Guid.NewGuid(),
+                    PrefabIndex = 0,
+                    SpawnTransformIndex = 0,
+                    Position = new SerializableVector3(position)
+                };
+
+                Packet packet = new Packet(PacketType.SpawnCustomerVector, outSpawnCustomer);
+
+                client.SendPayload(packet);
+            }
+
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                int[] r = Singleton<DisplayManager>.Instance.DisplayedProducts.Keys.ToArray();
+
+                foreach(var a in r)
+                {
+                    List<DisplaySlot> slot = Singleton<DisplayManager>.Instance.GetDisplaySlots(a, true);
+                    foreach(var b in slot)
+                    {
+                        List<Product> m_Products = (List<Product>)b.GetType().GetField("m_Products", BindingFlags.NonPublic | BindingFlags.Instance)
+                            .GetValue(b);
+
+                        if(m_Products.Count > 0)
+                        {
+                            var v = b.TakeProductFromDisplay();
+                            m_Products.Remove(v);
+                            LeanPool.Despawn(v);
+                        }
+                    }
+                }
             }
 
             if (UnityInput.Current.GetKeyDown(KeyCode.F2))

@@ -13,10 +13,10 @@ using Msmp.Server.Packets;
 using Msmp.Mono;
 using Msmp.Patch.Traffic;
 using Msmp.Patch.CustomerPatch;
-using MSMP.Patch.Traffic;
 using Msmp.Patch.Shop;
 using Msmp.Client.SynchronizationContainers;
 using Msmp.Patch.BoxPatch;
+using Msmp.Server.Packets.Customers;
 
 namespace Msmp.Client
 {
@@ -42,7 +42,7 @@ namespace Msmp.Client
 
         public Guid LocalClientNetworkId { get; private set; }
 
-        public bool IsServer { get; private set; }
+        public bool IsServer { get; private set; } = false;
 
         private NetworkStream GetStream()
             => _client.GetStream();
@@ -305,7 +305,7 @@ namespace Msmp.Client
                                     OutSpawnCustomerVector outSpawnCustomerVector = Packet.Deserialize<OutSpawnCustomerVector>(buffer);
 
                                     CustomerManagerSpawnPatch.SpawnCustomer(outSpawnCustomerVector.NetworkId, outSpawnCustomerVector.PrefabIndex,
-                                        outSpawnCustomerVector.SpawnTransformIndex, outSpawnCustomerVector.GetVector());
+                                        outSpawnCustomerVector.SpawnTransformIndex, outSpawnCustomerVector.Position.ToVector3());
                                 }
                                 break;
                             case PacketType.SyncAll:
@@ -321,6 +321,35 @@ namespace Msmp.Client
                                 {
                                     Guid guid = new Guid(buffer.Skip(1).Take(16).ToArray());
                                     NpcTrafficManagerDespawnPatch.RemoveTrafficNPC(guid);
+                                }
+                                break;
+                            case PacketType.CustomerGoToCheckout:
+                                {
+                                    OutCustomerGoToCheckout outCustomerGoToCheckout = Packet.Deserialize<OutCustomerGoToCheckout>(buffer);
+                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerGoToCheckout.NetworkId);
+                                    customer.GetComponent<NetworkedCustomer>().GoToCheckout();
+                                }
+                                break;
+                            case PacketType.CustomerStartShopping:
+                                {
+                                    OutCustomerStartShopping outCustomerStartShopping = Packet.Deserialize<OutCustomerStartShopping>(buffer);
+                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerStartShopping.NetworkId);
+                                    customer.GetComponent<NetworkedCustomer>().SyncStartShopping(outCustomerStartShopping.ShoppingList);
+                                }
+                                break;
+                            case PacketType.CustomerTakeProductFromDisplay:
+                                {
+                                    OutCustomerTakeProductPacket outCustomerTakeProductPacket = Packet.Deserialize<OutCustomerTakeProductPacket>(buffer);
+                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerTakeProductPacket.NetworkId);
+                                    customer.GetComponent<NetworkedCustomer>().SyncTakeProductFromDisplay(outCustomerTakeProductPacket);
+                                }
+                                break;
+                            case PacketType.CustomerWalkAround:
+                                {
+                                    OutCustomerWalkAround outCustomerWalkAround = Packet.Deserialize<OutCustomerWalkAround>(buffer);
+                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerWalkAround.NetworkId);
+                                    customer.GetComponent<NetworkedCustomer>().SyncWalkAround(outCustomerWalkAround.DisplaySlotId);
+
                                 }
                                 break;
                         }

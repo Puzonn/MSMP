@@ -1,16 +1,11 @@
-﻿using System;
-using UnityEngine;
+﻿using Msmp.Server.Models;
+using System;
 
 namespace Msmp.Server.Packets
 {
     [Serializable]
     internal class OutSpawnCustomerVector : OutSpawnCustomer
     {
-        public float x { get; set; }
-        public float y { get; set; }
-        public float z { get; set; }
-
-        public Vector3 GetVector()
-            => new Vector3(x, y, z);
+        public SerializableVector3 Position;
     }
 }
