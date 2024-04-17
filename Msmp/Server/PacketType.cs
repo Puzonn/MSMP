@@ -23,7 +23,10 @@ namespace Msmp.Server
         /* Acutally can be send */
         SyncAll = 0x15,
         DespawnTraffic = 0x16,
-
-        CustomerTakeProduct = 0x17
+        CustomerTakeProduct = 0x17,
+        CustomerTakeProductFromDisplay = 0x18,
+        CustomerStartShopping = 0x19,
+        CustomerGoToCheckout = 0x20,
+        CustomerMoveTo = 0x21
     }
 }

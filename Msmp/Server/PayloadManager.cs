@@ -166,7 +166,7 @@ namespace Msmp.Server
                             break;
                         case PacketType.SyncAll:
                             {
-                                SendPayload(new Packet(data));  
+                                SendPayloadExclude(stream, new Packet(data));  
                             }
                             break;
                         case PacketType.DespawnTraffic:
@@ -174,9 +174,19 @@ namespace Msmp.Server
                                 SendPayload(new Packet(data));
                             }
                             break;
-                        case PacketType.CustomerTakeProduct:
+                        case PacketType.CustomerGoToCheckout:
                             {
-                                SendPayloadExclude(stream, new Packet(data));
+                                SendPayload(new Packet(data));
+                            }
+                            break;
+                        case PacketType.CustomerStartShopping:
+                            {
+                                SendPayload(new Packet(data));  
+                            }
+                            break;
+                        case PacketType.CustomerTakeProductFromDisplay:
+                            {
+                                SendPayload(new Packet(data));
                             }
                             break;
                     }
