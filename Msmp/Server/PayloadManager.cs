@@ -186,7 +186,7 @@ namespace Msmp.Server
                             break;
                         case PacketType.CustomerTakeProductFromDisplay:
                             {
-                                SendPayload(new Packet(data));
+                                SendPayload(new Packet(data));  
                             }
                             break;
                         case PacketType.CustomerWalkAround:
