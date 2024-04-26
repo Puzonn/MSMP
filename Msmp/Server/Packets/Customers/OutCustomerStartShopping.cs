@@ -12,5 +12,8 @@ namespace Msmp.Server.Packets.Customers
         public List<ProcessedProduct> ProcessedProducts { get; set; }
         public int WalkRandomDisplaySlot { get; set; }
         public int WalkRandomDisplay { get; set; }
+        public int WaitRandomDisplaySlot { get; set; }
+        public int WaitRandomDisplay { get; set; }
+        public float WaitingIdleTime { get; set; }    
     }
 }

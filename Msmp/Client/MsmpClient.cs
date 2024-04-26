@@ -338,21 +338,6 @@ namespace Msmp.Client
                                     .SyncStartShopping(outCustomerStartShopping);
                                 }
                                 break;
-                            case PacketType.CustomerTakeProductFromDisplay:
-                                {
-                                    OutCustomerTakeProductPacket outCustomerTakeProductPacket = Packet.Deserialize<OutCustomerTakeProductPacket>(buffer);
-                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerTakeProductPacket.NetworkId);
-                                    //customer.GetComponent<NetworkedCustomer>().SyncTakeProductFromDisplay(outCustomerTakeProductPacket);
-                                }
-                                break;
-                            case PacketType.CustomerWalkAround:
-                                {
-                                    OutCustomerWalkAround outCustomerWalkAround = Packet.Deserialize<OutCustomerWalkAround>(buffer);
-                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerWalkAround.NetworkId);
-                                    customer.GetComponent<NetworkedCustomer>().SyncWalkAround(outCustomerWalkAround.DisplaySlotId);
-
-                                }
-                                break;
                         }
                     }, null);
                 }

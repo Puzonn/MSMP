@@ -29,15 +29,19 @@ namespace Msmp.Patch.CustomerPatch
 
             ItemQuantity shoppingList = Singleton<CustomerManager>.Instance.CreateShoppingList();
 
-            RandomDisplay randomDisplay = DisplayUtility.GetRandomDisplay();    
+            RandomDisplay walkRandomDisplay = DisplayUtility.GetRandomDisplay();    
+            RandomDisplay waitRandomDisplay = DisplayUtility.GetRandomDisplay();
 
             OutCustomerStartShopping outCustomerStartShopping = new OutCustomerStartShopping()
             {
-                ProcessedProducts = CreateSyncProcessProduct(__instance,shoppingList),
+                ProcessedProducts = CreateSyncProcessProduct(__instance, shoppingList),
                 ShoppingList = shoppingList,
                 NetworkId = __instance.GetComponent<NetworkedCustomer>().NetworkId,
-                WalkRandomDisplay = randomDisplay.DisplayId,
-                WalkRandomDisplaySlot = randomDisplay.DisplaySlotId
+                WalkRandomDisplay = walkRandomDisplay.DisplayId,
+                WalkRandomDisplaySlot = walkRandomDisplay.DisplaySlotId,
+                WaitRandomDisplay = waitRandomDisplay.DisplayId,
+                WaitRandomDisplaySlot = waitRandomDisplay.DisplaySlotId,
+                WaitingIdleTime = (float)Math.Floor(Random.Range(2f, 8f))
             };
 
             Packet packet = new Packet(PacketType.CustomerStartShopping, outCustomerStartShopping);

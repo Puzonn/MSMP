@@ -8,7 +8,6 @@ using Msmp.Server.Packets.Customers;
 using Msmp.Utility;
 using DG.Tweening;
 using Msmp.Server.Models;
-using System.Runtime.InteropServices;
 
 namespace Msmp.Mono
 {
@@ -21,7 +20,10 @@ namespace Msmp.Mono
         private bool _isShopping = false;
         private bool _startedShopping = false;
 
+        private float _waitingIdleTime = 0f;
+
         private DisplaySlot _randomWalkDisplaySlot = null;
+        private DisplaySlot _randomWaitDisplaySlot = null;
 
         private List<ProcessedProduct> _processedProducts { get; set; }
 
@@ -36,6 +38,8 @@ namespace Msmp.Mono
 
             _processedProducts = packet.ProcessedProducts;
             _randomWalkDisplaySlot = DisplayUtility.GetDisplaySlot(packet.WalkRandomDisplay, packet.WalkRandomDisplaySlot);
+            _randomWaitDisplaySlot = DisplayUtility.GetDisplaySlot(packet.WaitRandomDisplay, packet.WaitRandomDisplaySlot);
+            _waitingIdleTime = packet.WaitingIdleTime;
             StartCoroutine(Shopping());
         }
 
@@ -146,8 +150,21 @@ namespace Msmp.Mono
                 return;
             }
 
-            Singleton<WarningSystem>.Instance.SpawnCustomerSpeech(CustomerSpeechType.FULL_CHECKOUTS, base.transform, Array.Empty<string>());
+            Singleton<WarningSystem>.Instance.SpawnCustomerSpeech(CustomerSpeechType.FULL_CHECKOUTS, _customer.transform, Array.Empty<string>());
             Singleton<CheckoutManager>.Instance.m_CustomersAwaiting.Add(_customer);
+
+            StartCoroutine(WaitForAvailableCheckout());
+        }
+
+        private IEnumerator WaitForAvailableCheckout()
+        {
+            for (; ; )
+            {
+                yield return _customer.StartCoroutine("MoveTo", new object[] { _randomWaitDisplaySlot });
+                yield return new WaitForSeconds(_waitingIdleTime);
+            }
+
+            yield break;
         }
 
         public void SyncWalkAround(int displayId)
