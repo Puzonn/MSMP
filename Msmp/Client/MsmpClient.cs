@@ -334,14 +334,15 @@ namespace Msmp.Client
                                 {
                                     OutCustomerStartShopping outCustomerStartShopping = Packet.Deserialize<OutCustomerStartShopping>(buffer);
                                     Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerStartShopping.NetworkId);
-                                    customer.GetComponent<NetworkedCustomer>().SyncStartShopping(outCustomerStartShopping.ShoppingList);
+                                    customer.GetComponent<NetworkedCustomer>()
+                                    .SyncStartShopping(outCustomerStartShopping);
                                 }
                                 break;
                             case PacketType.CustomerTakeProductFromDisplay:
                                 {
                                     OutCustomerTakeProductPacket outCustomerTakeProductPacket = Packet.Deserialize<OutCustomerTakeProductPacket>(buffer);
                                     Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerTakeProductPacket.NetworkId);
-                                    customer.GetComponent<NetworkedCustomer>().SyncTakeProductFromDisplay(outCustomerTakeProductPacket);
+                                    //customer.GetComponent<NetworkedCustomer>().SyncTakeProductFromDisplay(outCustomerTakeProductPacket);
                                 }
                                 break;
                             case PacketType.CustomerWalkAround:
