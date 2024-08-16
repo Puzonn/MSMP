@@ -16,5 +16,10 @@ namespace Msmp.Utility
             type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
                 .SetValue(@object, value);
         }
+
+        public static void InvokePrivateMethod(this Type type, string methodName, object[] args, object @object)
+        {
+            type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(@object, args);
+        }
     }
 }

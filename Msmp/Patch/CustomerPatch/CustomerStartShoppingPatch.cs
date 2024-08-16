@@ -3,7 +3,7 @@ using Msmp.Client;
 using Msmp.Mono;
 using Msmp.Server;
 using Msmp.Server.Models;
-using Msmp.Server.Packets.Customers;
+using Msmp.Server.Packets.CustomerPackets;
 using MyBox;
 using System.Collections.Generic;
 using System;

@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Net.WebSockets" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
@@ -42,6 +46,9 @@
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\Desktop\Supermarket.Simulator.v0.1.2.4a\Supermarket Simulator_Data\Managed\UnityEngine.CoreModule.dll</HintPath>

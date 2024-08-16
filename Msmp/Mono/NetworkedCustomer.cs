@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
-using Msmp.Server.Packets.Customers;
+using Msmp.Server.Packets.CustomerPackets;
 using Msmp.Utility;
 using DG.Tweening;
 using Msmp.Server.Models;
@@ -83,13 +83,14 @@ namespace Msmp.Mono
             }
         }
 
-        private void FinishShopping(bool shortchange = false)
+        public void FinishShopping(bool shortchange = false)
         {
             _customer.GetType().GetMethod("CheckForProductsMissing", BindingFlags.Instance | BindingFlags.NonPublic)
                         .Invoke(_customer, new object[] { shortchange });
 
+            Console.WriteLine("EXiting");
             _customer.StartCoroutine("ExitStore");
-
+            Console.WriteLine("exit");
             if (_customer.GetType().GetPrivateField<bool>("m_IsSatisfiedCustomer", _customer))
             {
                 Singleton<DailyStatisticsManager>.Instance.AddSatisfiedCustomer();

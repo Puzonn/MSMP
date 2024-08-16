@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lean.Pool;
 using System.Reflection;
+using Msmp.Patch.CheckoutPatch;
 
 namespace Msmp
 {
@@ -72,6 +73,10 @@ namespace Msmp
             Harmony.CreateAndPatchAll(typeof(CustomermanagerSpawnVectorPatch));
             Harmony.CreateAndPatchAll(typeof(NpcTrafficManagerDespawnPatch));
             Harmony.CreateAndPatchAll(typeof(CustomerStartShoppingPatch));  
+            Harmony.CreateAndPatchAll(typeof(CustomerHandMoneyPatch));
+            Harmony.CreateAndPatchAll(typeof(CheckoutCashierCompletedCheckoutPatch));
+            Harmony.CreateAndPatchAll(typeof(CheckoutTryFinishingCardPayment));
+            Harmony.CreateAndPatchAll(typeof(CheckoutTryFinishingCashPayment));
         }
 
         private void Update()

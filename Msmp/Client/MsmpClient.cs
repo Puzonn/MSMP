@@ -16,7 +16,9 @@ using Msmp.Patch.CustomerPatch;
 using Msmp.Patch.Shop;
 using Msmp.Client.SynchronizationContainers;
 using Msmp.Patch.BoxPatch;
-using Msmp.Server.Packets.Customers;
+using Msmp.Server.Packets.CustomerPackets;
+using Msmp.Server.Packets.CheckoutPackets;
+using Msmp.Patch.CheckoutPatch;
 
 namespace Msmp.Client
 {
@@ -297,7 +299,8 @@ namespace Msmp.Client
                                 {
                                     OutSpawnCustomer outSpawnCustomer = Packet.Deserialize<OutSpawnCustomer>(buffer);
 
-                                    CustomerManagerSpawnPatch.SpawnCustomer(outSpawnCustomer.NetworkId, outSpawnCustomer.PrefabIndex, outSpawnCustomer.SpawnTransformIndex);
+                                    CustomerManagerSpawnPatch
+                                        .SpawnCustomer(outSpawnCustomer.NetworkId, outSpawnCustomer.PrefabIndex, outSpawnCustomer.SpawnTransformIndex);
                                 }
                                 break;
                             case PacketType.SpawnCustomerVector:
@@ -323,19 +326,19 @@ namespace Msmp.Client
                                     NpcTrafficManagerDespawnPatch.RemoveTrafficNPC(guid);
                                 }
                                 break;
-                            case PacketType.CustomerGoToCheckout:
-                                {
-                                    OutCustomerGoToCheckout outCustomerGoToCheckout = Packet.Deserialize<OutCustomerGoToCheckout>(buffer);
-                                    Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerGoToCheckout.NetworkId);
-                                    customer.GetComponent<NetworkedCustomer>().GoToCheckout();
-                                }
-                                break;
                             case PacketType.CustomerStartShopping:
                                 {
                                     OutCustomerStartShopping outCustomerStartShopping = Packet.Deserialize<OutCustomerStartShopping>(buffer);
                                     Customer customer = SyncContext.CustomerContainer.GetCustomer(outCustomerStartShopping.NetworkId);
                                     customer.GetComponent<NetworkedCustomer>()
-                                    .SyncStartShopping(outCustomerStartShopping);
+                                       .SyncStartShopping(outCustomerStartShopping);
+                                }
+                                break;
+                            case PacketType.CheckoutTryFinishingCardPayment:
+                                {
+                                    OutCheckoutCardPayment outCheckoutCardPayment = Packet.Deserialize<OutCheckoutCardPayment>(buffer);
+                                    CheckoutTryFinishingCardPayment
+                                      .SyncTryFinishingCardPayment(outCheckoutCardPayment.Total, outCheckoutCardPayment.CheckoutId);
                                 }
                                 break;
                         }

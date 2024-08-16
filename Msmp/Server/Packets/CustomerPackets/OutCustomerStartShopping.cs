@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Msmp.Server.Packets.Customers
+namespace Msmp.Server.Packets.CustomerPackets
 {
     [Serializable]
     internal class OutCustomerStartShopping

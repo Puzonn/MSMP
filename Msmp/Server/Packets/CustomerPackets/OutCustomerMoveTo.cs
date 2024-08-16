@@ -1,7 +1,7 @@
 ﻿using Msmp.Server.Models;
 using System;
 
-namespace Msmp.Server.Packets.Customers
+namespace Msmp.Server.Packets.CustomerPackets
 {
     [Serializable]
     internal class OutCustomerMoveTo

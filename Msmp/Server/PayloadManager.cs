@@ -174,11 +174,6 @@ namespace Msmp.Server
                                 SendPayload(new Packet(data));
                             }
                             break;
-                        case PacketType.CustomerGoToCheckout:
-                            {
-                                SendPayload(new Packet(data));
-                            }
-                            break;
                         case PacketType.CustomerStartShopping:
                             {
                                 SendPayload(new Packet(data));  
@@ -189,7 +184,7 @@ namespace Msmp.Server
                                 SendPayload(new Packet(data));  
                             }
                             break;
-                        case PacketType.CustomerWalkAround:
+                        case PacketType.CheckoutTryFinishingCardPayment:
                             {
                                 SendPayload(new Packet(data));
                             }
